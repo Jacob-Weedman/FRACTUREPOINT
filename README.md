@@ -4,7 +4,7 @@ Indie game made as part of a Highschool class with several other people.
 # Developers
 
 ### Jacob Weedman
-<sup>"Check my scripts bro."</sup><br>
+<sup>"Check my scripts"</sup><br>
 Enemies/Bosses Programming, Misc Level Programing, Concept Artist
 
 ### Jordan Knox
