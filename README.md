@@ -11,6 +11,7 @@ Enemies/Bosses Programming, Misc Level Programing, Concept Artist
 Story, Character/Enemy/NPC Concepts, Level Design, Level Artist, Social Media
 
 ### Tyson Gardner
+<sup>I use Arch, btw</sup><br>
 UI/Settings/Miscellaneous/Level Programming
 
 ### Joshua Murphey
