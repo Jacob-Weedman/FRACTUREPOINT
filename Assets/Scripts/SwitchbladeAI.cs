@@ -38,6 +38,7 @@ public class SwitchbladeAI : MonoBehaviour
     int MinumumDistance = 10;
     public bool targetingPlayer = false;
     public bool inFiringCycle = false;
+    public bool primed = false;
 
     //ENEMY STATS (Changeable)
     float Speed = 0.7f; // In relation to player's walking speed
@@ -113,6 +114,12 @@ public class SwitchbladeAI : MonoBehaviour
             Explode();
         }
 
+        // Explode when close to the player
+        if (primed && Vector2.Distance(player.transform.position, transform.position) <= 2)
+        {
+            Explode();
+        }
+
         // See where the enemy wants to go (DEBUGGING ONLY)
         if (target != null)
         {
@@ -123,7 +130,7 @@ public class SwitchbladeAI : MonoBehaviour
             target.GetComponent<SpriteRenderer>().enabled = true;
         }
 
-        //CHANGE ICONS
+//CHANGE ICONS
         if (targetingPlayer)
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = true;
@@ -133,7 +140,7 @@ public class SwitchbladeAI : MonoBehaviour
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         }
 
-        //MISC PATHFINDING
+//MISC PATHFINDING
         if (path == null)
             return;
 
@@ -176,13 +183,14 @@ public class SwitchbladeAI : MonoBehaviour
             }
         }
 
-        //PATROL
+//PATROL
         // Enemy detects player
         if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= PlayerDetectionRange)
         {
             currentlyPatrolling = false;
             targetingPlayer = true;
             canPursue = true;
+            primed = true;
 
             // Get the last know player location by finding which of the positions is closest to the player
             if (LastKnownPlayerLocation == null)
@@ -200,6 +208,7 @@ public class SwitchbladeAI : MonoBehaviour
         // Player has broken line of sight and the enemy will attempt to move to the last known location
         else if (LastKnownPlayerLocation != null)
         {
+            primed = false;
             if (Vector2.Distance(transform.position, LastKnownPlayerLocation.transform.position) > 0.5)
             {
                 canPursue = false;
@@ -274,7 +283,7 @@ public class SwitchbladeAI : MonoBehaviour
         await Task.Delay(3000); // Dash delay ms
 
         //Dash into player
-        rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -1;
+        rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -2f;
 
         inFiringCycle = false;
     }
@@ -343,16 +352,14 @@ public class SwitchbladeAI : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Player")
+        if (primed)
         {
-            Explode();
-        }
-
-        if (collision.gameObject.tag == "Ground")
-        {
-            if (collision.gameObject.layer == 6)
+            if (collision.gameObject.tag == "Ground")
             {
-                Explode();
+                if (collision.gameObject.layer == 6)
+                {
+                    Explode();
+                }
             }
         }
     }

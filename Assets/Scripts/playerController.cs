@@ -2,40 +2,17 @@ using System;
 using UnityEngine;
 
 
-
-public class character 
-{
-
-
-    public void basicAttack() 
-    {
-    
-
-
-
-    
-    }
-
-
-
-}
-
-
-
-
-
-
 public class playerController : MonoBehaviour
 {
 
     #region Imported Variables
-    private GroundCheck groundCheck; 
+    private GroundCheck groundCheck;
+    private DoubleCheck doubleCheck;
     private WallCheck wallCheck;
     private Rigidbody2D body;
     private Collider2D hBox;
     public GameObject attackHitbox;
-    public GameObject physicsProjectile;
-
+    public GameObject gun;
     #endregion 
     #region Keybinds
     private KeyCode hop = KeyCode.W, crouch = KeyCode.S, left = KeyCode.A, right = KeyCode.D, forward;
@@ -53,8 +30,8 @@ public class playerController : MonoBehaviour
     private float defaultMaxSpeed = 10f, defaultMoveSpeed = 10f, defaultJumpPower = 18f, defaultDashPower = 100f, defaultTurnResponsiveness = 4f, defaultExtraJumps = 1f; //Permanent Upgrades Will Affect These
     private float tempMaxSpeed = 10f, tempMoveSpeed = 10f, tempJumpPower = 18f, tempDashPower = 100f, tempTurnResponsiveness = 4f, tempExtraJumps; //Temporary Upgrades/Debuffs Will Affect These
     private float velocityDirection = 1, turnaround;
-    private float selectedWeapon = 0.0f;
     #endregion
+    float timer;
 
     void Start()
     {
@@ -75,7 +52,7 @@ public class playerController : MonoBehaviour
 
         CheckFaceDirection();
 
-        Damage();
+        attack();
     
     }
 
@@ -83,7 +60,7 @@ public class playerController : MonoBehaviour
 
     void CheckFaceDirection()
     {
-        #region Finding When Player Turns
+
         if (body.linearVelocity.x > 0 && !isFacingRight) 
         { 
             forward = right;
@@ -94,18 +71,24 @@ public class playerController : MonoBehaviour
             forward = left;
             Flip();
         }
-        #endregion
 
-        #region Change Player Orientation
         void Flip() {
             isFacingRight = !isFacingRight;
             velocityDirection *= -1;
 
+            #region Change Player Orientation
             Vector3 currentScale = transform.localScale;
             currentScale.x *= -1;
             transform.localScale = currentScale;
+
+            Vector3 gunScale = gun.transform.localScale;
+            gunScale.x *= -1;
+            gunScale.y *= -1;
+            gun.transform.localScale = gunScale;
+
+            #endregion
         }
-        #endregion
+
     }
 
 
@@ -113,13 +96,15 @@ public class playerController : MonoBehaviour
     {
         #region Ground Check
         groundCheck = GetComponentInChildren<GroundCheck>();
-        isGrounded = groundCheck.isGrounded;
+        doubleCheck = GetComponentInChildren<DoubleCheck>();
+
+        if (groundCheck.isGrounded && !doubleCheck.isInsideGround) isGrounded = true;
+        else isGrounded = false;
         #endregion
 
         #region Wall Check
         wallCheck = GetComponentInChildren<WallCheck>();
-        if (wallCheck.touchingWall && !isGrounded && Input.GetKey(forward)) 
-            isWallSlide = true;
+        if (wallCheck.touchingWall && !isGrounded && Input.GetKey(forward)) isWallSlide = true;
         else isWallSlide = false;
         #endregion
 
@@ -180,7 +165,7 @@ public class playerController : MonoBehaviour
         #endregion
         #region Attack Window
         if (attackTimer >= 0) attackTimer -= Time.deltaTime;
-        if (attackTimer < 0) attackHitbox.SetActive(false);
+        if (attackTimer < 0) attackHitbox.SetActive(false); 
         #endregion
 
         #region Resetting Speed Clamping
@@ -322,38 +307,20 @@ public class playerController : MonoBehaviour
 
     }
 
-
-    public void Damage()
+    public void attack()
     {
-
-        #region Player Attacks
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0)) 
         {
-
-            switch (selectedWeapon)
-            {
-
-                case 1.2f:
-                    Instantiate(physicsProjectile, new Vector3(body.position.x, body.position.y, 0), Quaternion.identity);
+            GetComponent<ShootScript>()?.Shoot();
 
 
-                    break;
-
-
-            }
-
-
+            /*
             attackHitbox.SetActive(true);
             attackTimer = attackTimerAmount;
             Debug.Log("swing");
+            */
+
         }
-        #endregion
-
-
-
-
-
-
 
 
     }
