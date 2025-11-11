@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//Use on Flamethrower turrets
+//Use on rocket turrets
 
-public class FlameTurretAI : MonoBehaviour
+public class RocketTurretAI : MonoBehaviour
 {
 
 //MISC
@@ -22,36 +22,29 @@ public class FlameTurretAI : MonoBehaviour
 
 //CONDITIONS/GENERAL INFORMATION
     bool canFire = true;
-    bool currentlyReloading = false;
     bool targetingPlayer = false;
     bool inFiringCycle = false;
-    int WeaponCurrentMagazineAmmount;
     float angle;
 
 //ENEMY STATS (Changeable)
     public float Health = 100;
-    public int PlayerDetectionRange = 40;
+    public int PlayerDetectionRange = 50;
 
 //WEAPON STATS (CHANGEABLE)
-    public int WeaponDamage = 1; // Damage per hit
-    public int WeaponFireRate = 50; // Delay in time between attacks both melee and ranged
-    public float WeaponRandomSpread = 2.5f; // Random direction of lanched projectiles
-    public int WeaponRange = 20; // Maximum range of the projectile before it drops off
-    public float WeaponProjectileSpeed = 20f; // Speed of launched projectiles
-    public int WeaponMagazineSize = 80; // Number of shots the enemy will take before having to reload
-    public int WeaponReloadTime = 10000; // Time it takes to reload the magazine
+    public int WeaponDamage = 30; // Damage per hit
+    public int WeaponFireRate = 2500; // Delay in time between attacks both melee and ranged
+    public float WeaponRandomSpread = 0.5f; // Random direction of lanched projectiles
+    public int WeaponRange = 40; // Maximum range of the projectile before it drops off
+    public float WeaponProjectileSpeed = 50f; // Speed of launched projectiles
     
 //ONCE THE GAME STARTS
     void Start()
     {
-        transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
 
-        projectile = GameObject.Find("EnemyProjectile");
+        projectile = GameObject.Find("EnemyRocketWeapon");
         player = GameObject.FindGameObjectWithTag("Player");
         barrel = transform.Find("Barrel").gameObject;
-
-        WeaponCurrentMagazineAmmount = WeaponMagazineSize;
 
         canFire = true;
     }
@@ -86,27 +79,14 @@ public class FlameTurretAI : MonoBehaviour
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         }
 
-        if (currentlyReloading)
-        {
-            transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = true;
-        }
-        else
-        {
-            transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
-        }
-
 //RANGED ATTACK
         // Check if enemy has line of sight on the player & if they are in the acceptable range       
-        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false)
+        if (canFire == true)
         {
             if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange)
             {
                 UseWeapon();
             }
-        }
-        else if (WeaponCurrentMagazineAmmount == 0 && currentlyReloading == false)
-        {
-            ReloadWeapon();
         }
 
 //PLAYER TARGETING
@@ -137,37 +117,21 @@ public class FlameTurretAI : MonoBehaviour
         canFire = false;
         inFiringCycle = true;
 
-        GameObject Flame;
-        Flame = Instantiate(GameObject.Find("Flame"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
-        Flame.transform.rotation = Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(-90, 90));
+        GameObject Rocket;
+        Rocket = Instantiate(GameObject.Find("EnemyRocket"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
+        Rocket.transform.rotation = Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(-90, 90));
 
         // Send it on its way
-        Flame.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 3 * WeaponRange * -1;
+        Rocket.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * WeaponProjectileSpeed * -1;
+        Rocket.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, Rocket.transform.forward) - 90));
 
-        //Set Variables
-        Flame.GetComponent<EnemyParticleWeapon>().destroy = true;
-        Flame.GetComponent<EnemyParticleWeapon>().opacity = true;
-        Flame.GetComponent<EnemyParticleWeapon>().timer = 3;
-        Flame.GetComponent<EnemyParticleWeapon>().destroyOnCollide= true;
-        Flame.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
+        // Variables
+        Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;
 
         await Task.Delay(WeaponFireRate);
 
         canFire = true;
         inFiringCycle = false;
-    }
-
-    // Reload Weapon
-    async Task ReloadWeapon()
-    {
-        canFire = false;
-        //play reload animation
-        currentlyReloading = true;
-        await Task.Delay(WeaponReloadTime);
-        WeaponCurrentMagazineAmmount = WeaponMagazineSize;
-        currentlyReloading = false;
-
-        canFire = true;
     }
 
     // General Utility

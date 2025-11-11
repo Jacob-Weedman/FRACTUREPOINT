@@ -42,7 +42,7 @@ public class SwitchbladeAI : MonoBehaviour
 
     //ENEMY STATS (Changeable)
     float Speed = 0.7f; // In relation to player's walking speed
-    float Health = 100;
+    float Health = 5;
     float PatrolDistance = 10;
     int PatrolStallTime = 1500; //ms
     int PlayerDetectionRange = 25;
@@ -336,15 +336,16 @@ public class SwitchbladeAI : MonoBehaviour
     // Explode
     void Explode()
     {
-        //Damage
+        //Create Explosion
         GameObject Explosion;
         Explosion = Instantiate(GameObject.Find("Explosion"), new Vector3(transform.position.x, transform.position.y, GameObject.Find("Explosion").transform.position.z), Quaternion.identity);
         Explosion.transform.rotation = Quaternion.Euler(Vector3.forward);
 
         //Set Variables
-        Explosion.GetComponent<ParticleWeapon>().destroy = true;
-        Explosion.GetComponent<ParticleWeapon>().opacity = true;
-        Explosion.GetComponent<ParticleWeapon>().damageAmmount = WeaponDamage;
+        Explosion.GetComponent<EnemyParticleWeapon>().destroy = true;
+        Explosion.GetComponent<EnemyParticleWeapon>().opacity = true;
+        Explosion.GetComponent<EnemyParticleWeapon>().timer = 3;
+        Explosion.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
         //Delete Enemy
         Destroy(gameObject);

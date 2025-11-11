@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//Use on warper type enemies
+//Use on Flamethrower type enemies
 
-public class WarperAI : MonoBehaviour
+public class FlamethrowerAI : MonoBehaviour
 {
 
 //MISC
@@ -21,40 +21,44 @@ public class WarperAI : MonoBehaviour
     bool reachedEndOfPath = false;
     GameObject projectile;
     GameObject player;
+    GameObject barrel;
     public List<GameObject> SuitablePositions;
     public List<GameObject> AllPositions;
     float DistanceFromPlayer;
     Vector2 StartPosition;
     public List<GameObject> PatrolPositions;
-    GameObject LastKnownPlayerLocation;
+    public GameObject LastKnownPlayerLocation;
 
 //CONDITIONS/GENERAL INFORMATION
-    bool canJump = true;
+    bool canJump = true; 
     bool canMove = true; // Prevent all movement
     bool canPursue = false; // Follow player
     bool canFire = false;
+    bool currentlyReloading = false;
     bool currentlyPatrolling;
     bool currentlyMovingToNextPatrolTarget = false;
     float DesiredDistance;
-    float MinumumDistance = 15f;
+    float MinumumDistance = 5f;
     bool targetingPlayer = false;
     bool inFiringCycle = false;
-    int NumberOfHitsPerMag = 0;
-    bool canTeleport = true;
+    int WeaponCurrentMagazineAmmount;
+    float angle;
 
 //ENEMY STATS (Changeable)
-    public float Speed = 0.7f; // In relation to player's walking speed
-    public float JumpHeight = 0.7f; // In relation to player's regular jump height
-    public float Health = 100;
-    public float PatrolDistance = 10;
+    public float Speed = 1.3f; // In relation to player's walking speed
+    public float JumpHeight = 1.3f; // In relation to player's regular jump height
+    public float Health = 30;
+    public float PatrolDistance = 15;
     public int PatrolStallTime = 2000; //ms
-    public int PlayerDetectionRange = 25;
-    public int TeleportCooldown = 500; //ms
+    public int PlayerDetectionRange = 20;
 
-    //WEAPON STATS (CHANGEABLE)
-    public int WeaponRange = 30; // Maximum range of the projectile before it drops off
-    public int WeaponFireRate = 5000; // ms
-    public int WeaponDamage = 1;
+//WEAPON STATS (CHANGEABLE)
+    public int WeaponDamage = 1; // Damage per hit
+    public int WeaponFireRate = 50; // Delay in time between attacks both melee and ranged
+    public float WeaponRandomSpread = 3f; // Random direction of lanched projectiles
+    public int WeaponRange = 15; // Maximum range of the projectile before it drops off
+    public int WeaponMagazineSize = 200; // Number of shots the enemy will take before having to reload
+    public int WeaponReloadTime = 5000; // Time it takes to reload the magazine
     
 //REFERENCES
     Seeker seeker;
@@ -66,6 +70,7 @@ public class WarperAI : MonoBehaviour
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
 
+        transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
 
         StartPosition = transform.position;
@@ -81,12 +86,14 @@ public class WarperAI : MonoBehaviour
 
         projectile = GameObject.Find("EnemyProjectile");
         player = GameObject.FindGameObjectWithTag("Player");
+        barrel = transform.Find("Barrel").gameObject;
         LastKnownPlayerLocation = null;
 
+        WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         DesiredDistance = WeaponRange - 5;
 
         InvokeRepeating("UpdatePath", 0f, 0.1f);
-        InvokeRepeating("PathfindingTimeout", 0f, 30);
+        InvokeRepeating("PathfindingTimeout", 0f, 10);
 
     }
 
@@ -114,16 +121,8 @@ public class WarperAI : MonoBehaviour
     {
         if (Vector2.Distance(transform.position, target.transform.position) > 0.5)
         {
-            if (targetingPlayer == false)
-            {
-                target = gameObject;
-                MoveNextPatrol();
-                Teleport();
-            }
-            else
-            {
-                Teleport();
-            }
+            target = gameObject;
+            MoveNextPatrol();
         }
     }
 
@@ -154,6 +153,20 @@ public class WarperAI : MonoBehaviour
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         }
 
+        if (currentlyReloading)
+        {
+            transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = true;
+        }
+        else
+        {
+            transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        }
+
+        //if (90 <= angle || angle <= 270)
+        //{
+        //    barrel.transform.localScale = new Vector2(-barrel.transform.localScale.x, barrel.transform.localScale.y);
+        //}
+
 //MISC PATHFINDING
         if (path == null)
             return;
@@ -172,12 +185,16 @@ public class WarperAI : MonoBehaviour
 
 //RANGED ATTACK
         // Check if enemy has line of sight on the player & if they are in the acceptable range       
-        if ( canFire == true && currentlyPatrolling == false)
+        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false && currentlyPatrolling == false)
         {
             if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange && Vector2.Distance(transform.position, player.transform.position) <= DesiredDistance)
             {
             UseWeapon();
             }
+        }
+        else if (WeaponCurrentMagazineAmmount == 0 && currentlyReloading == false)
+        {
+            ReloadWeapon();
         }
 
 //MOVEMENT
@@ -186,7 +203,6 @@ public class WarperAI : MonoBehaviour
             canFire = false;
 
             Vector2 direction = (Vector2)path.vectorPath[currentWaypoint] - rb.position;
-            //float xDirection = target.transform.position.x - transform.position.x;
 
             if (direction.x > 0) // Move right
             {
@@ -198,7 +214,7 @@ public class WarperAI : MonoBehaviour
                 rb.AddForce(new Vector2(-1 * Speed * 20, rb.linearVelocity.y));
             }
 
-            if (direction.y > 1f && targetingPlayer == false) // Wants to jump
+            if (direction.y > 1f) // Wants to jump
             {
                 JumpMethod();
             }
@@ -248,6 +264,9 @@ public class WarperAI : MonoBehaviour
                 }
             }
 
+            // Angle barrel towards player
+            angle = Mathf.Atan2(player.transform.position.y - barrel.transform.position.y, player.transform.position.x - barrel.transform.position.x) * Mathf.Rad2Deg;
+
         }
         // Player has broken line of sight and the enemy will attempt to move to the last known location
         else if (LastKnownPlayerLocation != null)
@@ -256,13 +275,15 @@ public class WarperAI : MonoBehaviour
             {
                 canPursue = false;
                 target = LastKnownPlayerLocation;
-                Teleport();
             }
             if (Vector2.Distance(transform.position, LastKnownPlayerLocation.transform.position) < 0.5 && DetermineLineOfSight(player, gameObject) == false)
             {
                 targetingPlayer = false;
                 LastKnownPlayerLocation = null;
             }
+
+            // Reset barrel rotation
+            angle = 0f;
 
         }
         // Go back to patrol move
@@ -275,15 +296,21 @@ public class WarperAI : MonoBehaviour
                 MoveNextPatrol();
             }
 
+            // Reset barrel rotation
+            angle = 0f;
         }
+        
+        // Rotate barrel towards player
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        barrel.transform.rotation = Quaternion.RotateTowards(barrel.transform.rotation, targetRotation, 200 * Time.deltaTime);
         
 //TARGET DETERMINATION
         if (canPursue == true)
         {
-            // If enemy is at the target position (CHANGE TARGET)
-            if (Vector2.Distance(target.transform.position, transform.position) < 1.5 && canTeleport)
+            // Catch desired distance error
+            if (DesiredDistance <= MinumumDistance)
             {
-                ComputeClosestPositionToPlayer();
+                DesiredDistance = MinumumDistance + 1;
             }
 
             // If the player moves away (CHANGE TARGET)
@@ -310,15 +337,6 @@ public class WarperAI : MonoBehaviour
                 ComputeClosestPositionToPlayer();
             }
 
-            // Teleport enemy
-            if (canTeleport)
-            {
-                if (Vector2.Distance(transform.position, target.transform.position) > 0.5)
-                {
-                    Teleport();
-                }
-            }
-
             // If the enemy reaches the target
             if (Vector2.Distance(target.transform.position, transform.position) <= 1 && DetermineLineOfSight(gameObject, player))
             {
@@ -334,35 +352,51 @@ public class WarperAI : MonoBehaviour
     // Perform jump
     async Task JumpMethod()
     {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpHeight * 12);
-        canJump = false;
-        await Task.Delay(500);
+        if (canJump == true)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpHeight * 12);
+            canJump = false;
+            await Task.Delay(500);
+        }
     }
-    // Use Weapon
+    // Use Ranged Weapon
     async Task UseWeapon()
     {
         canFire = false;
-        canMove = false;
         inFiringCycle = true;
 
-        GameObject EvilAura;
-        EvilAura = Instantiate(GameObject.Find("EvilAura"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
-        EvilAura.transform.rotation = Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(-90, 90));
+        GameObject Flame;
+        Flame = Instantiate(GameObject.Find("Flame"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
+        Flame.transform.rotation = Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(-90, 90));
 
         // Send it on its way
-        EvilAura.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * WeaponRange * -1;
+        Flame.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
 
         //Set Variables
-        EvilAura.GetComponent<EnemyParticleWeapon>().destroy = true;
-        EvilAura.GetComponent<EnemyParticleWeapon>().opacity = true;
-        EvilAura.GetComponent<EnemyParticleWeapon>().rotate = true;
-        EvilAura.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
+        Flame.GetComponent<EnemyParticleWeapon>().destroy = true;
+        Flame.GetComponent<EnemyParticleWeapon>().opacity = true;
+        Flame.GetComponent<EnemyParticleWeapon>().destroyOnCollide= true;
+        Flame.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
         await Task.Delay(WeaponFireRate);
 
         canFire = true;
-        canMove = true;
         inFiringCycle = false;
+    }
+
+    // Reload Weapon
+    async Task ReloadWeapon()
+    {
+        canFire = false;
+        canMove = false;
+        //play reload animation
+        currentlyReloading = true;
+        await Task.Delay(WeaponReloadTime);
+        WeaponCurrentMagazineAmmount = WeaponMagazineSize;
+        currentlyReloading = false;
+
+        canFire = true;
+        canMove = true;
     }
 
     // Part of the patrol cycle
@@ -403,15 +437,6 @@ public class WarperAI : MonoBehaviour
         }
     }
 
-    // Teleport
-    async Task Teleport()
-    {
-        canTeleport = false;
-        transform.position = target.transform.position;
-        await Task.Delay(TeleportCooldown + UnityEngine.Random.Range(0, TeleportCooldown / 2));
-        canTeleport = true;
-    }
-
     // Part of the pursue cycle
     void ComputeClosestPositionToPlayer()
     {
@@ -422,7 +447,7 @@ public class WarperAI : MonoBehaviour
         foreach (GameObject query in AllPositions)
         {
             // Check the distance of the position
-            if (Vector2.Distance(query.transform.position, player.transform.position) < 30 && Vector2.Distance(query.transform.position, player.transform.position) >= 10)
+            if (Vector2.Distance(query.transform.position, player.transform.position) < DesiredDistance && Vector2.Distance(query.transform.position, player.transform.position) >= MinumumDistance)
             {
                 // Check line of sight of the position
                 if (DetermineLineOfSight(query, player))
@@ -435,6 +460,14 @@ public class WarperAI : MonoBehaviour
         if (SuitablePositions.Count > 0)
         {
             target = SuitablePositions[UnityEngine.Random.Range(0, SuitablePositions.Count)];
+            foreach (GameObject pos in SuitablePositions)
+            {
+                //Find the point that is closest to the enemy
+                if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                {
+                    target = pos;
+                }
+            }
         }
     }
 }
