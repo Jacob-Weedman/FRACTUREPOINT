@@ -22,5 +22,6 @@ Player Sprites, Enemy Sprites, Boss Sprites, Backgrounds
 
 # Project Info
 
-Made in Unity 6000.2.7f2
+Made in Unity 6000.2.7f2 <br>
+Pathfinding curtosy of the A* project. <br>
 2025-2026
