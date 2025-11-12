@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//V 0.0.1
 //Use on Sniper type enemies
 
 public class SniperAI : MonoBehaviour

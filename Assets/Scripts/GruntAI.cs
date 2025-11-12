@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//V 0.0.1
 //Use on Grunt type enemies
 
 public class GruntAI : MonoBehaviour
