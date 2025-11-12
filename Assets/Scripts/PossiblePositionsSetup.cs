@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//Designed by Jacob Weedman
-//V 0.0.2
+// Designed by Jacob Weedman
+// Part of the "GAMESCRIPTS" required prefab
 
 public class PossiblePositionsSetup : MonoBehaviour
 {
@@ -12,7 +12,6 @@ public class PossiblePositionsSetup : MonoBehaviour
 
     void Awake()
     {
-
         //Setup List
         groundList = GameObject.FindGameObjectsWithTag("Ground").ToList();
 
@@ -23,14 +22,11 @@ public class PossiblePositionsSetup : MonoBehaviour
 
             while (RemainingWidth > (-1 * ground.transform.localScale.x))
             {
-                Instantiate(GameObject.Find("PossiblePosition"), new Vector3((ground.transform.position.x + (GameObject.Find("PossiblePosition").transform.localScale.x / 4) - (RemainingWidth / 2)), (ground.transform.position.y + (GameObject.Find("PossiblePosition").transform.localScale.y / 2) + (ground.transform.localScale.y / 2)), ground.transform.position.z), ground.transform.rotation);
+                GameObject position;
+                position = Instantiate(GameObject.Find("PossiblePosition"), new Vector3((ground.transform.position.x + (GameObject.Find("PossiblePosition").transform.localScale.x / 4) - (RemainingWidth / 2)), (ground.transform.position.y + (GameObject.Find("PossiblePosition").transform.localScale.y / 2) + (ground.transform.localScale.y / 2)), ground.transform.position.z), ground.transform.rotation);
+                position.transform.parent = ground.transform;
                 RemainingWidth -= GameObject.Find("PossiblePosition").transform.localScale.x * 2;
             }
         }
-    }
-
-    void Update()
-    {
-
     }
 }
