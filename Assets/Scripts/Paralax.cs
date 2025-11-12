@@ -4,22 +4,21 @@ using UnityEngine;
 
 //Designed by Jacob Weedman
 //Place this script on any of the background elements you want paralax to apply to
-//V 0.0.4
 
 public class Background : MonoBehaviour
 {
 
-    private float length;
-    private float startposX;
-    private float startposY;
+    float length;
+    float startposX;
+    float startposY;
     GameObject camera;
-    private float LAYER_MODULATOR;
-    private float ParalaxStrength = 0.3f;
-    private float yOffset = 1f;
-    private int MaxLayer = 10;
+    float LAYER_MODULATOR;
+    float ParalaxStrength = 0.3f;
+    float yOffset = 1f;
+    public bool FixedOnCamera = false;
     public bool looping = false;
 
-    void Start()
+    void Awake()
     {
         startposX = transform.position.x;
         startposY = transform.position.y;
@@ -34,8 +33,8 @@ public class Background : MonoBehaviour
         float temp = (camera.transform.position.x * (1 - (LAYER_MODULATOR * ParalaxStrength * 0.1f)));
         float distanceX = (camera.transform.position.x * LAYER_MODULATOR * ParalaxStrength * 0.1f);
         float distanceY = (camera.transform.position.y * LAYER_MODULATOR * ParalaxStrength * 0.1f);
-        //transform.position = new Vector3((startposX + distanceX) * -1, (startposY + distanceY + yOffset) * -1, transform.position.z);
-        if (transform.position.z >= MaxLayer)
+        
+        if (FixedOnCamera)
         {
             transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, transform.position.z);
         }

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//Use on light drones ranged enemies
+//DO NOT USE ON ANY ENEMIES
 
 public class LightDroneAI : MonoBehaviour
 {
@@ -20,6 +20,7 @@ public class LightDroneAI : MonoBehaviour
     bool reachedEndOfPath = false;
     GameObject projectile;
     GameObject player;
+    GameObject barrel;
     public List<GameObject> AllPositions;
     float DistanceFromPlayer;
     Vector2 StartPosition;
@@ -27,19 +28,20 @@ public class LightDroneAI : MonoBehaviour
     Transform DroneBayLocation;
 
     //CONDITIONS/GENERAL INFORMATION
-    public bool canMove = true;
-    public bool canPursue = false;
-    public bool canFire = true;
-    public bool currentlyReloading = false;
-    public bool currentlyInDroneBay = true;
-    public float DesiredDistance;
-    public float MinumumDistance = 10f;
-    public bool targetingPlayer = false;
-    public bool inFiringCycle = false;
-    public int WeaponCurrentMagazineAmmount;
-    public int NumberOfHitsPerMag = 0;
-    public int CurrentBatteryCapacity;
-    public bool currentlyTravelingToDroneBay = false;
+    bool canMove = false;
+    bool canPursue = false;
+    bool canFire = true;
+    bool currentlyReloading = false;
+    bool currentlyInDroneBay = true;
+    float DesiredDistance;
+    float MinumumDistance = 10f;
+    bool targetingPlayer = false;
+    bool inFiringCycle = false;
+    int WeaponCurrentMagazineAmmount;
+    int CurrentBatteryCapacity;
+    bool currentlyTravelingToDroneBay = false;
+    bool currentlyRecharging = false;
+    float angle;
 
     //ENEMY STATS (Changeable)
     public float Speed = 0.7f; // In relation to player's walking speed
@@ -69,14 +71,16 @@ public class LightDroneAI : MonoBehaviour
 
         transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        transform.Find("BatteryIndicator").GetComponent<SpriteRenderer>().enabled = false;
 
         StartPosition = transform.position;
         AllPositions = GameObject.FindGameObjectsWithTag("PossiblePositions").ToList();
 
         target = Instantiate(GameObject.Find("FlyingTarget"), transform.position, Quaternion.identity);
 
-        projectile = GameObject.Find("Projectile");
+        projectile = GameObject.Find("EnemyProjectile");
         player = GameObject.FindGameObjectWithTag("Player");
+        barrel = transform.Find("Barrel").gameObject;
         LastKnownPlayerLocation = null;
         DroneBayLocation = transform.parent.transform;
 
@@ -86,8 +90,9 @@ public class LightDroneAI : MonoBehaviour
 
         InvokeRepeating("UpdatePath", 0f, 0.1f);
         InvokeRepeating("PathfindingTimeout", 0f, 30);
-        InvokeRepeating("PathfindingTimeout", 0f, 1f);
+        InvokeRepeating("BatteryDrain", 0f, 1);
 
+        Recharge();
     }
 
     // When enemy has reached the next node
@@ -117,7 +122,7 @@ public class LightDroneAI : MonoBehaviour
             //target = gameObject;
             targetingPlayer = false;
             LastKnownPlayerLocation = null;
-            ReturnToDroneBay();
+            //ReturnToDroneBay();
         }
     }
 
@@ -130,43 +135,59 @@ public class LightDroneAI : MonoBehaviour
         }
     }
 
-    //Main logic
+// MAIN LOGIC
     void FixedUpdate()
     {
-        // Death
+//DEATH
+        if (CurrentBatteryCapacity == 0)
+        {
+            Health = 0;
+        }
+        
         if (Health <= 0)
         {
             GameObject DeadBody;
             DeadBody = Instantiate(gameObject, transform.position, Quaternion.identity);
             DeadBody.GetComponent<Rigidbody2D>().gravityScale = 3;
-            Destroy(GameObject.Find(DeadBody.name).GetComponent<TestEnemyAIAirRanged>());
+            Destroy(GameObject.Find(DeadBody.name).GetComponent<LightDroneAI>());
             Destroy(GameObject.Find(DeadBody.name).GetComponent<Seeker>());
 
             foreach (Transform child in DeadBody.transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
+
             Destroy(gameObject);
         }
 
-        if (CurrentBatteryCapacity <= MaxBatteryCapacity / 10)
+//Battery
+        // Low battery return
+        if (CurrentBatteryCapacity <= 10)
         {
             ReturnToDroneBay();
         }
 
-        // See where the enemy wants to go (DEBUGGING ONLY)
-        /*
-        if (target != null)
+        // Recharge battery & bay detection
+        if (Vector2.Distance(transform.position, DroneBayLocation.position) <= 0.5)
         {
-            foreach (GameObject pos in AllPositions)
+            currentlyInDroneBay = true;
+            currentlyTravelingToDroneBay = false;
+            if (currentlyRecharging == false && CurrentBatteryCapacity < 10)
             {
-                pos.GetComponent<SpriteRenderer>().enabled = false;
+                Recharge();
             }
-            target.GetComponent<SpriteRenderer>().enabled = true;
+            else
+            {
+                canMove = false;
+            }
         }
-        */
+        else
+        {
+            //canMove = true;
+            currentlyInDroneBay = false;
+        }
 
-        // Change Icons
+//CHANGE ICONS
         if (targetingPlayer)
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = true;
@@ -185,12 +206,21 @@ public class LightDroneAI : MonoBehaviour
             transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         }
 
+        if (CurrentBatteryCapacity <= MaxBatteryCapacity / 10)
+        {
+            transform.Find("BatteryIndicator").GetComponent<SpriteRenderer>().enabled = true;
+        }
+        else
+        {
+            transform.Find("BatteryIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        }
+
         if (currentlyInDroneBay == false)
         {
             seeker.enabled = true;
         }
 
-        //MISC PATHFINDING
+//MISC PATHFINDING
         if (path == null)
             return;
 
@@ -206,10 +236,10 @@ public class LightDroneAI : MonoBehaviour
             reachedEndOfPath = false;
         }
 
-        //RANGED ATTACK
+//RANGED ATTACK
         // Check if enemy has line of sight on the player & if they are in the acceptable range
 
-        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false)
+        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false && currentlyInDroneBay == false)
         {
             if (DetermineLineOfSight(gameObject, player) == true && inFiringCycle == false && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange && Vector2.Distance(transform.position, player.transform.position) <= DesiredDistance)
             {
@@ -221,7 +251,7 @@ public class LightDroneAI : MonoBehaviour
             ReloadWeapon();
         }
 
-        //MOVEMENT
+//MOVEMENT
         if (canMove == true)
         {
             Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
@@ -238,14 +268,21 @@ public class LightDroneAI : MonoBehaviour
             }
         }
 
-        //DETECTION
+//DETECTION
         // Enemy detects player
-        if (DetermineLineOfSight(transform.parent.gameObject, player) && Vector2.Distance(DroneBayLocation.position, player.transform.position) <= PlayerDetectionRange)
+        if (DetermineLineOfSight(transform.parent.gameObject, player) && Vector2.Distance(DroneBayLocation.position, player.transform.position) <= PlayerDetectionRange && currentlyRecharging == false)
         {
-            currentlyInDroneBay = false;
+            if (currentlyInDroneBay == true)
+            {
+                rb.linearVelocity = transform.parent.transform.up * 10;
+            }
             canMove = true;
             targetingPlayer = true;
             canPursue = true;
+
+            // Angle barrel towards player
+            angle = Mathf.Atan2(player.transform.position.y - barrel.transform.position.y, player.transform.position.x - barrel.transform.position.x) * Mathf.Rad2Deg;
+
         }
         else if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= PlayerDetectionRange)
         {
@@ -263,6 +300,9 @@ public class LightDroneAI : MonoBehaviour
                     LastKnownPlayerLocation = pos;
                 }
             }
+
+            // Reset barrel rotation
+            angle = -90f;
         }
         // Player has broken line of sight and the enemy will attempt to move to the last known location
         else if (LastKnownPlayerLocation != null)
@@ -277,63 +317,66 @@ public class LightDroneAI : MonoBehaviour
                 targetingPlayer = false;
                 LastKnownPlayerLocation = null;
             }
+
+            // Reset barrel rotation
+            angle = -90f;
         }
         // Go back to drone bay
         else
         {
-            LastKnownPlayerLocation = gameObject;
+            LastKnownPlayerLocation = null;
             ReturnToDroneBay();
             targetingPlayer = false;
+
+            // Reset barrel rotation
+            angle = -90f;
         }
+
+        // Rotate barrel towards player
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        barrel.transform.rotation = Quaternion.RotateTowards(barrel.transform.rotation, targetRotation, 100 * Time.deltaTime);
 
 
         if (currentlyTravelingToDroneBay == false)
         {
             //TARGET DETERMINATION
 
+            // If enemy is at the target position
+            if (Vector2.Distance(target.transform.position, transform.position) < 1.5)
+            {
+                ComputeClosestPositionToPlayer();
+            }
+
             // If the player moves away (CHANGE TARGET)
             if (Vector2.Distance(target.transform.position, player.transform.position) > DesiredDistance)
             {
                 ComputeClosestPositionToPlayer();
-                canMove = true;
             }
 
             //If the player is too close to the target (CHANGE TARGET)
             if (Vector2.Distance(target.transform.position, player.transform.position) < MinumumDistance)
             {
                 ComputeClosestPositionToPlayer();
-                canMove = true;
             }
 
             // If the player is not within line of sight of the desired position (CHANGE TARGET)
             if (DetermineLineOfSight(target, player) == false)
             {
                 ComputeClosestPositionToPlayer();
-                canMove = true;
             }
 
             // If the enemy reaches the target
             if (Vector2.Distance(target.transform.position, transform.position) <= 1)
             {
-                if (DetermineLineOfSight(gameObject, player)) // If the enemy has LOS on the player
-                {
-
-                }
-                else
+                if (DetermineLineOfSight(gameObject, player) == false) // If the enemy has LOS on the player
                 {
                     ComputeClosestPositionToPlayer();
-                    canMove = true;
                 }
-            }
-
-            // If the enemy has not yet reached the target
-            else
-            {
-
             }
         }
     }
 
+//MISC METHODS
     // Use Ranged Weapon
     async Task UseWeapon() // Weapon for projectile based enemy
     {
@@ -365,30 +408,33 @@ public class LightDroneAI : MonoBehaviour
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         currentlyReloading = false;
 
-        NumberOfHitsPerMag = 0;
-
         canFire = true;
     }
 
     // Return To Drone Bay
     async Task ReturnToDroneBay()
     {
-        if (currentlyTravelingToDroneBay == false)
+        if (currentlyTravelingToDroneBay == false && currentlyInDroneBay == false)
         {
             currentlyTravelingToDroneBay = true;
             target.transform.position = DroneBayLocation.position;
-            if (Vector2.Distance(transform.position, DroneBayLocation.position) <= 0.5)
-            {
-                transform.position = DroneBayLocation.position;
-                currentlyTravelingToDroneBay = false;
-                canMove = false;
-                currentlyInDroneBay = true;
-                seeker.enabled = false;
-                await Task.Delay(RechargeTime);
-                CurrentBatteryCapacity = MaxBatteryCapacity;
-            }
         }
-        
+    }
+
+    // Recharge
+    async Task Recharge()
+    {
+        currentlyRecharging = true;
+        canMove = false;
+        canFire = false;
+        seeker.enabled = false;
+        transform.position = DroneBayLocation.position;
+        rb.linearVelocity = Vector3.zero;
+        currentlyTravelingToDroneBay = false;
+        await Task.Delay(RechargeTime);
+        CurrentBatteryCapacity = MaxBatteryCapacity;
+        currentlyRecharging = false;
+        canFire = true;
     }
 
     // General Utility
@@ -409,12 +455,13 @@ public class LightDroneAI : MonoBehaviour
         }
     }
 
-    // Partof the pursue cycle
+    // Part of the pursue cycle
     void ComputeClosestPositionToPlayer()
     {
         // find a target in the air a set radius away from the player
         if (DetermineLineOfSight(player, gameObject))
         {
+            canMove = true;
             target.transform.position = new Vector2((player.transform.position.x + UnityEngine.Random.Range(-MinumumDistance, MinumumDistance)), (player.transform.position.y + MinumumDistance + UnityEngine.Random.Range(-5, 0)));
         }
     }

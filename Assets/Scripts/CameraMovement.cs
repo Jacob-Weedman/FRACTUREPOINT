@@ -7,7 +7,6 @@ using System.Text;
 
 //Designed by Jacob Weedman
 //Component of the "MainCamera" game object
-//V 0.0.5
 
 public class CameraMovement : MonoBehaviour
 {
@@ -37,8 +36,7 @@ public class CameraMovement : MonoBehaviour
         player = GameObject.FindWithTag("Player");
 
         transform.position = new Vector3(target.transform.position.x, target.transform.position.y, -10);
-        //target.transform.position = new Vector2(player.transform.position.x, player.transform.position.y);
-        //TempPos = InitialPanDestinations[UnityEngine.Random.Range(0, InitialPanDestinations.Count)];
+
         float distance = 1000000;
         foreach (GameObject query in InitialPanDestinations)
         {
@@ -48,6 +46,12 @@ public class CameraMovement : MonoBehaviour
                 TempPos = query;
             }
         }
+
+        if (TempPos == null)
+        {
+            TempPos = target;
+        }
+
         target.transform.position = TempPos.transform.position;
     }
     
@@ -74,10 +78,6 @@ public class CameraMovement : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, target.transform.position.y, transform.position.z);
         }
-
-        // Call for camera to be tweened
-        //TweenX();
-        //TweenY();
 
         // Move Camera
         transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 300);

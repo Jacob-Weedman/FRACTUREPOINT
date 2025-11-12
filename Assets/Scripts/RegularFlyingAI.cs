@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//V 0.0.1
 //Use on regular flying ranged enemies
 
 public class RegularFlyingAI : MonoBehaviour
@@ -39,7 +38,6 @@ public class RegularFlyingAI : MonoBehaviour
     bool targetingPlayer = false;
     bool inFiringCycle = false;
     int WeaponCurrentMagazineAmmount;
-    int NumberOfHitsPerMag = 0;
 
     //ENEMY STATS (Changeable)
     public float Speed = 0.7f; // In relation to player's walking speed
@@ -297,21 +295,11 @@ public class RegularFlyingAI : MonoBehaviour
             // If the enemy reaches the target
             if (Vector2.Distance(target.transform.position, transform.position) <= 1)
             {
-                if (DetermineLineOfSight(gameObject, player)) // If the enemy has LOS on the player
-                {
-
-                }
-                else
+                if (DetermineLineOfSight(gameObject, player) == false) // If the enemy has LOS on the player
                 {
                     ComputeClosestPositionToPlayer();
                     canMove = true;
                 }
-            }
-
-            // If the enemy has not yet reached the target
-            else
-            {
-
             }
         }
     }
@@ -347,8 +335,6 @@ public class RegularFlyingAI : MonoBehaviour
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         currentlyReloading = false;
 
-        NumberOfHitsPerMag = 0;
-
         canFire = true;
     }
 
@@ -362,11 +348,9 @@ public class RegularFlyingAI : MonoBehaviour
         currentlyMovingToNextPatrolTarget = true;
 
         //Find Random Position nearby
-        //transform.position = Vector2.MoveTowards(StartPosition, new Vector2((StartPosition.x + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)), (StartPosition.y + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance))), 0.1f);
         target.transform.position = new Vector2((StartPosition.x + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)), (StartPosition.y + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)));
         await Task.Delay(PatrolStallTime + UnityEngine.Random.Range((PatrolStallTime * -1), PatrolStallTime));
 
-        //canPursue = true;
         currentlyMovingToNextPatrolTarget = false;
 
     }

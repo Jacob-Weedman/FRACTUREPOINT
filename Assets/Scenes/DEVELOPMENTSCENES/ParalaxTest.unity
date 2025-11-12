@@ -239,6 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &156794848
 SpriteRenderer:
@@ -343,6 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &308835034
 SpriteRenderer:
@@ -447,6 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &339019691
 SpriteRenderer:
@@ -551,6 +554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &400592406
 SpriteRenderer:
@@ -655,6 +659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &459491341
 SpriteRenderer:
@@ -883,6 +888,7 @@ MonoBehaviour:
   LockX: 0
   LockY: 0
   MaxCameraDistance: 15
+  InitialPanDestinations: []
 --- !u!1 &536479201
 GameObject:
   m_ObjectHideFlags: 0
@@ -913,6 +919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &536479203
 SpriteRenderer:
@@ -1017,6 +1024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &611917516
 SpriteRenderer:
@@ -1121,7 +1129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  looping: 1
+  FixedOnCamera: 1
+  looping: 0
 --- !u!212 &690345842
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1225,6 +1234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &750395195
 SpriteRenderer:
@@ -1448,7 +1458,7 @@ GameObject:
   - component: {fileID: 833391012}
   - component: {fileID: 833391011}
   - component: {fileID: 833391010}
-  - component: {fileID: 833391009}
+  - component: {fileID: 833391014}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1456,18 +1466,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &833391009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 833391008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43123429e7f993140b4cf6d8bd8c7b35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &833391010
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1615,6 +1613,18 @@ Transform:
   - {fileID: 1520413669}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &833391014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 833391008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2627a91a1f5308c41a35eeeea160fda1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::playerMovement
 --- !u!1 &852746183
 GameObject:
   m_ObjectHideFlags: 0
@@ -1645,6 +1655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &852746185
 SpriteRenderer:
@@ -1749,6 +1760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &852790181
 SpriteRenderer:
@@ -1926,6 +1938,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!1 &1119163216
 GameObject:
@@ -1957,6 +1970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1119163218
 SpriteRenderer:
@@ -2198,6 +2212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1292986677
 SpriteRenderer:
@@ -2439,6 +2454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1403748363
 SpriteRenderer:
@@ -2543,6 +2559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1406657923
 SpriteRenderer:
@@ -2784,6 +2801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1484202657
 SpriteRenderer:
@@ -2980,6 +2998,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1557133328
 SpriteRenderer:
@@ -3221,6 +3240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1644678503
 SpriteRenderer:
@@ -3325,6 +3345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1761744553
 SpriteRenderer:
@@ -3429,6 +3450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1765872622
 SpriteRenderer:
@@ -3533,6 +3555,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1781572386
 SpriteRenderer:
@@ -3637,6 +3660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1849553780
 SpriteRenderer:
@@ -3741,6 +3765,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &1872743836
 SpriteRenderer:
@@ -3845,6 +3870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &2091886215
 SpriteRenderer:
@@ -3949,6 +3975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4faa9b2b0de0ac43932ea144c9308a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FixedOnCamera: 0
   looping: 0
 --- !u!212 &2126433956
 SpriteRenderer:
