@@ -8,10 +8,10 @@ using System.Linq;
 using System.Text;
 
 //Designed by Jacob Weedman
-//Use on any basic ground enemy
+//Use on any basic enemy
 //Configure to your likeing 
 
-public class BasicGroundEnemyAI : MonoBehaviour
+public class MasterEnemyAI : MonoBehaviour
 {
 
 #region MISC VARIABLES (DO NOT CHANGE VALUES)
@@ -167,7 +167,7 @@ public class BasicGroundEnemyAI : MonoBehaviour
         {
             GameObject DeadBody;
             DeadBody = Instantiate(gameObject, transform.position, Quaternion.identity);
-            Destroy(GameObject.Find(DeadBody.name).GetComponent<BasicGroundEnemyAI>());
+            Destroy(GameObject.Find(DeadBody.name).GetComponent<MasterEnemyAI>());
             Destroy(GameObject.Find(DeadBody.name).GetComponent<Seeker>());
 
         foreach (Transform child in DeadBody.transform) {
@@ -420,19 +420,8 @@ public class BasicGroundEnemyAI : MonoBehaviour
     }
     #endregion
 
-#endregion
+    #endregion
 
-#region MISC METHODS
-    // Perform jump
-    async Task JumpMethod()
-    {
-        if (canJump == true && AbilityJump)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpHeight * 12);
-            canJump = false;
-            await Task.Delay(500);
-        }
-    }
     #region UseWeapon 
     // Use Weapon
     async Task UseWeapon()
@@ -441,7 +430,7 @@ public class BasicGroundEnemyAI : MonoBehaviour
         {
             canMove = false;
         }
-        
+
         canFire = false;
         inFiringCycle = true;
 
@@ -478,7 +467,7 @@ public class BasicGroundEnemyAI : MonoBehaviour
 
                 // Create particle
                 GameObject ParticleWeapon;
-                
+
                 if (ParticleWeaponType == "ELECTRICITY") // Instantiate electrity object
                 {
                     ParticleWeapon = Instantiate(GameObject.Find("EvilAura"), new Vector3(barrel.transform.position.x, barrel.transform.position.y, GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
@@ -528,6 +517,8 @@ public class BasicGroundEnemyAI : MonoBehaviour
         inFiringCycle = false;
     }
     #endregion
+    
+    #region MISC METHODS
 
     async Task Dash()
     {
@@ -632,7 +623,7 @@ public class BasicGroundEnemyAI : MonoBehaviour
     {
         canFire = false;
         canMove = true;
-        
+
         SuitablePositions.Clear();
         foreach (GameObject query in AllPositions)
         {
@@ -658,6 +649,17 @@ public class BasicGroundEnemyAI : MonoBehaviour
                     target = pos;
                 }
             }
+        }
+    }
+
+    // Perform jump
+    async Task JumpMethod()
+    {
+        if (canJump == true && AbilityJump)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpHeight * 12);
+            canJump = false;
+            await Task.Delay(500);
         }
     }
 }
