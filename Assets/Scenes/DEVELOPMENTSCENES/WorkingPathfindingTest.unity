@@ -3482,16 +3482,13 @@ MonoBehaviour:
   DesiredDistance: 0
   MinumumDistance: 5
   targetingPlayer: 0
-  inFiringCycle: 0
-  WeaponCurrentMagazineAmmount: 0
-  NumberOfHitsPerMag: 0
-  angle: 0
   Speed: 0.7
   JumpHeight: 1
   Health: 100
   PatrolDistance: 10
   PatrolStallTime: 2000
   PlayerDetectionRange: 25
+  WeaponType: RANGED
   WeaponDamage: 15
   WeaponFireRate: 250
   WeaponRandomSpread: 5
@@ -3499,6 +3496,7 @@ MonoBehaviour:
   WeaponProjectileSpeed: 30
   WeaponMagazineSize: 20
   WeaponReloadTime: 5000
+  WeaponCurrentMagazineAmmount: 0
 --- !u!1 &1193086071
 GameObject:
   m_ObjectHideFlags: 0
@@ -3758,7 +3756,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &1267246498
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3945,10 +3943,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1267246496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c79c23de9c45cc468f83c588b8c3da1, type: 3}
+  m_Script: {fileID: 11500000, guid: ba7d100626939a34a940695ac9a80a8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestEnemyAIAirRanged
-  target: {fileID: 3945128562339645432}
+  target: {fileID: 0}
   nextWaypointDistance: 5
   AllPositions: []
   DistanceFromPlayer: 0
@@ -3961,7 +3959,7 @@ MonoBehaviour:
   currentlyPatrolling: 0
   currentlyMovingToNextPatrolTarget: 0
   DesiredDistance: 0
-  MinumumDistance: 10
+  MinumumDistance: 20
   targetingPlayer: 0
   inFiringCycle: 0
   WeaponCurrentMagazineAmmount: 0
@@ -3975,7 +3973,7 @@ MonoBehaviour:
   WeaponDamage: 5
   WeaponFireRate: 100
   WeaponRandomSpread: 5
-  WeaponRange: 20
+  WeaponRange: 30
   WeaponProjectileSpeed: 30
   WeaponMagazineSize: 50
   WeaponReloadTime: 5000
@@ -6003,7 +6001,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2076708459}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61b4018b808661f4989ccc5e8438ece6, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c2fe015b31da6b409479a7d804d4c67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasicGroundEnemyAI
   SuitablePositions: []
@@ -6019,13 +6017,19 @@ MonoBehaviour:
   PlayerDetectionRange: 20
   dashSpeed: 40
   HiddenTransparencyAmmount: 0.05
+  TeleportCooldown: 500
+  MaxBatteryCapacity: 30
+  RechargeTime: 6000
   AbilityDash: 0
-  AbilityInvisible: 1
-  AbilityJump: 1
+  AbilityInvisible: 0
+  AbilityJump: 0
   AbilityTeleport: 0
   AbilityShootAndMove: 0
   AbilityReloadAndMove: 0
-  WeaponType: ROCKET
+  AbilityMove: 1
+  EnemyType: AIR
+  IsDrone: 0
+  WeaponType: RANGED
   ParticleWeaponType: FIRE
   WeaponDamage: 5
   WeaponFireRate: 300

@@ -7,14 +7,16 @@ using System;
 using System.Linq;
 using System.Text;
 
-//Designed by Jacob Weedman
-//Use on any basic enemy
-//Configure to your likeing 
+// Designed by Jacob Weedman
+// Use on any basic enemy
+//
+// Configure to your likeing 
+// Not all options apply with every configuration
 
 public class MasterEnemyAI : MonoBehaviour
 {
 
-#region MISC VARIABLES (DO NOT CHANGE VALUES)
+    #region MISC VARIABLES (DO NOT CHANGE VALUES)
     GameObject target;
     float nextWaypointDistance = 5;
     Path path;
@@ -29,14 +31,15 @@ public class MasterEnemyAI : MonoBehaviour
     Vector2 StartPosition;
     public List<GameObject> PatrolPositions;
     public GameObject LastKnownPlayerLocation;
-#endregion
+    Transform DroneBayLocation;
+    #endregion
 
-#region CONDITIONS/GENERAL INFORMATION
+    #region CONDITIONS/GENERAL INFORMATION
     bool targetingPlayer = false;
     bool inFiringCycle = false;
     bool currentlyReloading = false;
     bool currentlyPatrolling;
-    bool canJump = true; 
+    bool canJump = true;
     bool canMove = true; // Prevent all movement
     bool canPursue = false; // Follow player
     bool canFire = false;
@@ -48,10 +51,14 @@ public class MasterEnemyAI : MonoBehaviour
     public int NumberOfHitsPerMag = 0;
     bool canTeleport = true;
     float angle;
+    bool currentlyInDroneBay = false;
+    int CurrentBatteryCapacity;
+    bool currentlyTravelingToDroneBay = false;
+    bool currentlyRecharging = false;
 
-#endregion
+    #endregion
 
-#region ENEMY STATS (Changeable in Unity)
+    #region ENEMY STATS (Changeable in Unity)
     public float Speed = 1f; // In relation to player's walking speed
     public float JumpHeight = 1f; // In relation to player's regular jump height
     public float Health = 100;
@@ -61,7 +68,9 @@ public class MasterEnemyAI : MonoBehaviour
     public float dashSpeed = 40f; // Strength of the dash
     public float HiddenTransparencyAmmount = 0.05f; // Strength of the cloaked transparency
     public int TeleportCooldown = 500; //ms
-    
+    public int MaxBatteryCapacity = 30; // Depletes one every second it is out of the bay
+    public int RechargeTime = 6000; //ms
+
     // Capabiltiies
     public bool AbilityDash = false;
     public bool AbilityInvisible = false;
@@ -69,10 +78,14 @@ public class MasterEnemyAI : MonoBehaviour
     public bool AbilityTeleport = false;
     public bool AbilityShootAndMove = false;
     public bool AbilityReloadAndMove = false;
+    public bool AbilityMove = false;
 
-#endregion
+    #endregion
 
-#region WEAPON STATS (CHANGEABLE in Unity)
+    #region WEAPON STATS (CHANGEABLE in Unity)
+
+    public string EnemyType = "GROUND"; // Options: "GROUND", "AIR"
+    public bool IsDrone = false;
     public string WeaponType = "RANGED"; // Options: "RANGED", "ROCKET", "PARTICLE", "MELEE", "GRENADE"
     public string ParticleWeaponType = "FIRE"; // Options: "FIRE", "ELECTRICITY". NOTE: only used if public variable WeaponType = "PARTICLE" 
     public int WeaponDamage = 5; // Damage per hit
@@ -82,15 +95,15 @@ public class MasterEnemyAI : MonoBehaviour
     public float WeaponProjectileSpeed = 40f; // Speed of launched projectiles
     public int WeaponMagazineSize = 20; // Number of shots the enemy will take before having to reload
     public int WeaponReloadTime = 3000; // Time it takes to reload the magazine
-#endregion
+    #endregion
 
-#region COMPONENT REFERENCES
+    #region COMPONENT REFERENCES
     Seeker seeker;
     Rigidbody2D rb;
-#endregion
+    #endregion
 
-#region ONCE THE GAME STARTS
-    void Start()
+    #region ONCE THE ENEMY IS SPAWNED IN
+    void Awake()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
@@ -100,14 +113,26 @@ public class MasterEnemyAI : MonoBehaviour
 
         StartPosition = transform.position;
         AllPositions = GameObject.FindGameObjectsWithTag("PossiblePositions").ToList();
-        foreach (GameObject pos in AllPositions)
+
+        if (EnemyType == "GROUND")
         {
-            if (Vector2.Distance(pos.transform.position, StartPosition) <= PatrolDistance)
+            foreach (GameObject pos in AllPositions)
             {
-                PatrolPositions.Add(pos);
+                if (Vector2.Distance(pos.transform.position, StartPosition) <= PatrolDistance)
+                {
+                    PatrolPositions.Add(pos);
+                }
             }
+
+            target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
         }
-        target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
+
+        if (EnemyType == "AIR")
+        {
+            GetComponent<Rigidbody2D>().gravityScale = 0;
+            target = Instantiate(GameObject.Find("FlyingTarget"), transform.position, Quaternion.identity);
+        }
+        
 
         projectile = GameObject.Find("EnemyProjectile");
         player = GameObject.FindGameObjectWithTag("Player");
@@ -120,10 +145,16 @@ public class MasterEnemyAI : MonoBehaviour
         InvokeRepeating("UpdatePath", 0f, 0.1f);
         InvokeRepeating("PathfindingTimeout", 0f, 10);
 
+        if (IsDrone == true)
+        {
+            InvokeRepeating("BatteryDrain", 0f, 1);
+            CurrentBatteryCapacity = MaxBatteryCapacity;
+            DroneBayLocation = transform.parent.transform;
+        }
     }
-#endregion
+    #endregion
 
-#region INVOKE REPEATING METHODS
+    #region INVOKE REPEATING METHODS
     // When enemy has reached the next node
     void OnPathComplete(Path p)
     {
@@ -154,15 +185,25 @@ public class MasterEnemyAI : MonoBehaviour
             if (AbilityTeleport)
             {
                 Teleport();
-            }    
+            }
         }
     }
-#endregion
 
-#region MAIN LOGIC
+    // Battery Drain
+    void BatteryDrain()
+    {
+        if (currentlyInDroneBay == false)
+        {
+            CurrentBatteryCapacity -= 1;
+        }
+    }
+
+    #endregion
+
+    #region MAIN LOGIC
     void FixedUpdate()
     {
-#region DEATH
+        #region DEATH
         if (Health <= 0)
         {
             GameObject DeadBody;
@@ -170,14 +211,15 @@ public class MasterEnemyAI : MonoBehaviour
             Destroy(GameObject.Find(DeadBody.name).GetComponent<MasterEnemyAI>());
             Destroy(GameObject.Find(DeadBody.name).GetComponent<Seeker>());
 
-        foreach (Transform child in DeadBody.transform) {
-            GameObject.Destroy(child.gameObject);
-        }
+            foreach (Transform child in DeadBody.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
             Destroy(gameObject);
         }
-#endregion
+        #endregion
 
-#region ICONS
+        #region ICONS
         if (targetingPlayer && transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>())
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = true;
@@ -208,9 +250,9 @@ public class MasterEnemyAI : MonoBehaviour
         //{
         //    barrel.transform.localScale = new Vector2(-barrel.transform.localScale.x, barrel.transform.localScale.y);
         //}
-#endregion
+        #endregion
 
-#region MISC PATHFINDING (DONT CHANGE)
+        #region MISC PATHFINDING (DONT CHANGE)
         if (path == null)
             return;
 
@@ -225,24 +267,24 @@ public class MasterEnemyAI : MonoBehaviour
         {
             reachedEndOfPath = false;
         }
-#endregion
+        #endregion
 
-#region WEAPONATTACK
+        #region WEAPONATTACK
         // Check if enemy has line of sight on the player & if they are in the acceptable range       
         if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false && currentlyPatrolling == false)
         {
             if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange && Vector2.Distance(transform.position, player.transform.position) <= DesiredDistance)
             {
-            UseWeapon();
+                UseWeapon();
             }
         }
         else if (WeaponCurrentMagazineAmmount == 0 && currentlyReloading == false)
         {
             ReloadWeapon();
         }
-#endregion
+        #endregion
 
-#region MOVEMENT
+        #region MOVEMENT
 
         // Call Dash
         if (DetermineLineOfSight(gameObject, player) && targetingPlayer && canDash == true && AbilityDash)
@@ -250,8 +292,8 @@ public class MasterEnemyAI : MonoBehaviour
             Dash();
         }
 
-        // Regular Movement
-        if (canMove == true)
+        // Ground Movement
+        if (canMove == true && EnemyType == "GROUND" && AbilityMove)
         {
             canFire = false;
 
@@ -280,9 +322,27 @@ public class MasterEnemyAI : MonoBehaviour
                 currentWaypoint++;
             }
         }
-#endregion
+        // Air Movement
+        if (canMove == true && EnemyType == "AIR" && AbilityMove)
+        {
+            Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
+            Vector2 force = direction * Speed * 20;
 
-#region GROUND DETECTION
+            rb.AddForce(force);
+
+            // A* logic
+            float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
+
+            if (distance < nextWaypointDistance)
+            {
+                currentWaypoint++;
+            }
+        }
+
+
+        #endregion
+
+        #region GROUND DETECTION
         //Detecting if the enemy has reached the ground
         if (GetComponentInChildren<GroundCheck>().isGrounded == true && rb.linearVelocity.y == 0)
         {
@@ -297,9 +357,9 @@ public class MasterEnemyAI : MonoBehaviour
             canJump = false;
             canFire = false;
         }
-#endregion
+        #endregion
 
-#region PATROL & DETECTION    
+        #region PATROL & DETECTION    
         // Enemy detects player
         if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= PlayerDetectionRange)
         {
@@ -334,8 +394,8 @@ public class MasterEnemyAI : MonoBehaviour
                 if (AbilityTeleport)
                 {
                     Teleport();
-                }    
-                
+                }
+
             }
             if (Vector2.Distance(transform.position, LastKnownPlayerLocation.transform.position) < 0.5 && DetermineLineOfSight(player, gameObject) == false)
             {
@@ -350,9 +410,15 @@ public class MasterEnemyAI : MonoBehaviour
         // Go back to patrol move
         else
         {
+            LastKnownPlayerLocation = gameObject;
             currentlyPatrolling = true;
             targetingPlayer = false;
-            if (canMove == true && currentlyMovingToNextPatrolTarget == false)
+
+            if (IsDrone)
+            {
+                ReturnToDroneBay();
+            }
+            else if (canMove == true && currentlyMovingToNextPatrolTarget == false)
             {
                 MoveNextPatrol();
             }
@@ -360,14 +426,14 @@ public class MasterEnemyAI : MonoBehaviour
             // Reset barrel rotation
             angle = 0f;
         }
-        
+
         // Rotate barrel towards player
         Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
         barrel.transform.rotation = Quaternion.RotateTowards(barrel.transform.rotation, targetRotation, 200 * Time.deltaTime);
 
-#endregion
+        #endregion
 
-    #region TARGET DETERMINATION
+        #region TARGET DETERMINATION
         if (canPursue == true)
         {
             // Catch desired distance error
@@ -413,7 +479,7 @@ public class MasterEnemyAI : MonoBehaviour
             {
                 if (canFire == false && inFiringCycle == false)
                 {
-                    canFire = true;
+                    //canFire = true;
                 }
             }
         }
@@ -422,7 +488,7 @@ public class MasterEnemyAI : MonoBehaviour
 
     #endregion
 
-    #region UseWeapon 
+    #region USE WEAPON METHOD
     // Use Weapon
     async Task UseWeapon()
     {
@@ -517,7 +583,7 @@ public class MasterEnemyAI : MonoBehaviour
         inFiringCycle = false;
     }
     #endregion
-    
+
     #region MISC METHODS
 
     async Task Dash()
@@ -531,7 +597,7 @@ public class MasterEnemyAI : MonoBehaviour
 
         canDash = true;
     }
-    
+
     // Reload Weapon
     async Task ReloadWeapon()
     {
@@ -567,17 +633,27 @@ public class MasterEnemyAI : MonoBehaviour
         canPursue = false;
         currentlyMovingToNextPatrolTarget = true;
 
-        //Find Random Position nearby
-        if (Vector2.Distance(transform.position, target.transform.position) <= 0.5 || PatrolPositions.Contains(target) == false)
+        if (WeaponType == "GROUND")
         {
-            target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
+            //Find Random Position nearby
+            if (Vector2.Distance(transform.position, target.transform.position) <= 0.5 || PatrolPositions.Contains(target) == false)
+            {
+                target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
+                await Task.Delay(PatrolStallTime + UnityEngine.Random.Range((PatrolStallTime * -1), PatrolStallTime));
+            }
+        }
+
+        if (WeaponType == "AIR")
+        {
+            //Find Random Position nearby
+            target.transform.position = new Vector2((StartPosition.x + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)), (StartPosition.y + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)));
             await Task.Delay(PatrolStallTime + UnityEngine.Random.Range((PatrolStallTime * -1), PatrolStallTime));
         }
 
         currentlyMovingToNextPatrolTarget = false;
 
     }
-    
+
     // Teleport
     async Task Teleport()
     {
@@ -621,33 +697,44 @@ public class MasterEnemyAI : MonoBehaviour
     // Part of the pursue cycle
     void ComputeClosestPositionToPlayer()
     {
-        canFire = false;
         canMove = true;
 
-        SuitablePositions.Clear();
-        foreach (GameObject query in AllPositions)
+        if (EnemyType == "GROUND")
         {
-            // Check the distance of the position
-            if (Vector2.Distance(query.transform.position, player.transform.position) < DesiredDistance && Vector2.Distance(query.transform.position, player.transform.position) >= MinumumDistance)
+
+            SuitablePositions.Clear();
+            foreach (GameObject query in AllPositions)
             {
-                // Check line of sight of the position
-                if (DetermineLineOfSight(query, player))
+                // Check the distance of the position
+                if (Vector2.Distance(query.transform.position, player.transform.position) < DesiredDistance && Vector2.Distance(query.transform.position, player.transform.position) >= MinumumDistance)
                 {
-                    SuitablePositions.Add(query);
+                    // Check line of sight of the position
+                    if (DetermineLineOfSight(query, player))
+                    {
+                        SuitablePositions.Add(query);
+                    }
+                }
+            }
+
+            if (SuitablePositions.Count > 0)
+            {
+                target = SuitablePositions[UnityEngine.Random.Range(0, SuitablePositions.Count)];
+                foreach (GameObject pos in SuitablePositions)
+                {
+                    //Find the point that is closest to the enemy
+                    if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                    {
+                        target = pos;
+                    }
                 }
             }
         }
 
-        if (SuitablePositions.Count > 0)
+        if (EnemyType == "AIR")
         {
-            target = SuitablePositions[UnityEngine.Random.Range(0, SuitablePositions.Count)];
-            foreach (GameObject pos in SuitablePositions)
+            if (DetermineLineOfSight(player, gameObject))
             {
-                //Find the point that is closest to the enemy
-                if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
-                {
-                    target = pos;
-                }
+                target.transform.position = new Vector2((player.transform.position.x + UnityEngine.Random.Range(-MinumumDistance, MinumumDistance)), (player.transform.position.y + MinumumDistance + UnityEngine.Random.Range(-5, 0)));
             }
         }
     }
@@ -661,6 +748,32 @@ public class MasterEnemyAI : MonoBehaviour
             canJump = false;
             await Task.Delay(500);
         }
+    }
+
+    // Return To Drone Bay
+    async Task ReturnToDroneBay()
+    {
+        if (currentlyTravelingToDroneBay == false && currentlyInDroneBay == false)
+        {
+            currentlyTravelingToDroneBay = true;
+            target.transform.position = DroneBayLocation.position;
+        }
+    }
+
+    // Recharge
+    async Task Recharge()
+    {
+        currentlyRecharging = true;
+        canMove = false;
+        canFire = false;
+        seeker.enabled = false;
+        transform.position = DroneBayLocation.position;
+        rb.linearVelocity = Vector3.zero;
+        currentlyTravelingToDroneBay = false;
+        await Task.Delay(RechargeTime);
+        CurrentBatteryCapacity = MaxBatteryCapacity;
+        currentlyRecharging = false;
+        canFire = true;
     }
 }
 #endregion
