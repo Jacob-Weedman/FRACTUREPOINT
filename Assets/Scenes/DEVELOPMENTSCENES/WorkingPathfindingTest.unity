@@ -3549,34 +3549,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7648da7fff980ce49a1a1c9cbec3ba01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightDrone
-  AllPositions: []
-  canMove: 1
-  canPursue: 0
-  canFire: 1
-  currentlyReloading: 0
-  currentlyInDroneBay: 1
-  DesiredDistance: 0
-  MinumumDistance: 10
-  targetingPlayer: 0
-  inFiringCycle: 0
-  WeaponCurrentMagazineAmmount: 0
-  NumberOfHitsPerMag: 0
-  CurrentBatteryCapacity: 0
-  currentlyTravelingToDroneBay: 0
-  currentlyRecharging: 0
-  angle: 0
-  Speed: 0.7
-  Health: 100
-  PlayerDetectionRange: 25
-  MaxBatteryCapacity: 30
-  RechargeTime: 6000
-  WeaponDamage: 5
-  WeaponFireRate: 100
-  WeaponRandomSpread: 5
-  WeaponRange: 30
-  WeaponProjectileSpeed: 30
-  WeaponMagazineSize: 50
-  WeaponReloadTime: 5000
 --- !u!61 &1193086074
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3756,7 +3728,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1267246498
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5986,7 +5958,7 @@ GameObject:
   - component: {fileID: 2076708461}
   - component: {fileID: 2076708460}
   m_Layer: 8
-  m_Name: BasicGroundEnemy
+  m_Name: MasterEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6012,9 +5984,10 @@ MonoBehaviour:
   Speed: 1
   JumpHeight: 1
   Health: 100
-  PatrolDistance: 15
+  MinumumDistance: 10
+  PatrolDistance: 10
   PatrolStallTime: 2000
-  PlayerDetectionRange: 20
+  PlayerDetectionRange: 40
   dashSpeed: 40
   HiddenTransparencyAmmount: 0.05
   TeleportCooldown: 500
@@ -6027,14 +6000,18 @@ MonoBehaviour:
   AbilityShootAndMove: 0
   AbilityReloadAndMove: 0
   AbilityMove: 1
+  AbilityDynamicRelocation: 0
+  AbilityExplodeOnContact: 0
+  AbilityExplodeNearPlayer: 0
+  AbilityExplodeOnDeath: 1
   EnemyType: AIR
   IsDrone: 0
-  WeaponType: RANGED
+  WeaponType: ROCKET
   ParticleWeaponType: FIRE
   WeaponDamage: 5
   WeaponFireRate: 300
   WeaponRandomSpread: 7.5
-  WeaponRange: 15
+  WeaponRange: 25
   WeaponProjectileSpeed: 40
   WeaponMagazineSize: 20
   WeaponReloadTime: 3000
