@@ -6006,14 +6006,14 @@ MonoBehaviour:
   AbilityExplodeOnDeath: 1
   EnemyType: AIR
   IsDrone: 0
-  WeaponType: ROCKET
+  WeaponType: RANGED
   ParticleWeaponType: FIRE
   WeaponDamage: 5
-  WeaponFireRate: 300
+  WeaponFireRate: 50
   WeaponRandomSpread: 7.5
   WeaponRange: 25
   WeaponProjectileSpeed: 40
-  WeaponMagazineSize: 20
+  WeaponMagazineSize: 100
   WeaponReloadTime: 3000
 --- !u!114 &2076708461
 MonoBehaviour:

@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 
 //Designed by Jacob Weedman
-//V 0.0.2
 
 public class EnemyProjectileScript : MonoBehaviour
 {
@@ -17,43 +16,12 @@ public class EnemyProjectileScript : MonoBehaviour
         GetComponent<SpriteRenderer>().enabled = true;
 
         // Test Enemies
-        if (GetComponentInParent<TestEnemyAIAirRanged>())
+        if (GetComponentInParent<MasterEnemyAI>())
         {
-            WeaponDamage = GetComponentInParent<TestEnemyAIAirRanged>().WeaponDamage;
-            WeaponRange = GetComponentInParent<TestEnemyAIAirRanged>().WeaponRange;
+            WeaponDamage = GetComponentInParent<MasterEnemyAI>().WeaponDamage;
+            WeaponRange = GetComponentInParent<MasterEnemyAI>().WeaponRange;
         }
-        if (GetComponentInParent<TestEnemyAIGroundRanged>())
-        {
-            WeaponDamage = GetComponentInParent<TestEnemyAIGroundRanged>().WeaponDamage;
-            WeaponRange = GetComponentInParent<TestEnemyAIGroundRanged>().WeaponRange;
-        }
-        if (GetComponentInParent<TestEnemyAITurret>())
-        {
-            WeaponDamage = GetComponentInParent<TestEnemyAITurret>().WeaponDamage;
-            WeaponRange = GetComponentInParent<TestEnemyAITurret>().WeaponRange;
-        }
-        if (GetComponentInParent<TestEnemyAIDroneRanged>())
-        {
-            WeaponDamage = GetComponentInParent<TestEnemyAIDroneRanged>().WeaponDamage;
-            WeaponRange = GetComponentInParent<TestEnemyAIDroneRanged>().WeaponRange;
-        }
-
-        // Actual Enemies
-        if (GetComponentInParent<GruntAI>())
-        {
-            WeaponDamage = GetComponentInParent<GruntAI>().WeaponDamage;
-            WeaponRange = GetComponentInParent<GruntAI>().WeaponRange;
-        }
-        if (GetComponentInParent<SniperAI>())
-        {
-            WeaponDamage = GetComponentInParent<SniperAI>().WeaponDamage;
-            WeaponRange = GetComponentInParent<SniperAI>().WeaponRange;
-        }
-        if (GetComponentInParent<TankAI>())
-        {
-            WeaponDamage = GetComponentInParent<TankAI>().WeaponDamage;
-            WeaponRange = GetComponentInParent<TankAI>().WeaponRange;
-        }
+        
     }
 
     void Update()
@@ -79,14 +47,9 @@ public class EnemyProjectileScript : MonoBehaviour
             GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= WeaponDamage;
 
             //Send Hit Data (for repositioning)
-            if (GetComponentInParent<GruntAI>())
+            if (GetComponentInParent<MasterEnemyAI>())
             {
-                GetComponentInParent<GruntAI>().NumberOfHitsPerMag += 1;
-            }
-
-            if (GetComponentInParent<TestEnemyAIGroundRanged>())
-            {
-                GetComponentInParent<TestEnemyAIGroundRanged>().NumberOfHitsPerMag += 1;
+                GetComponentInParent<MasterEnemyAI>().NumberOfHitsPerMag += 1;
             }
 
             Destroy(gameObject);

@@ -57,7 +57,10 @@ public class EnemyParticleWeapon : MonoBehaviour
         {
             if (collision.gameObject.layer == 8 || collision.gameObject.layer == 11)
             {
-                // Go through every enemy script and decrease the health of the enemy
+                if (collision.GetComponent<MasterEnemyAI>())
+                {
+                    collision.GetComponent<MasterEnemyAI>().Health -= damageAmmount;
+                }
             }
         }
         
