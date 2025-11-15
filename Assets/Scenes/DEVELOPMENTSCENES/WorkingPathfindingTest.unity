@@ -5990,12 +5990,12 @@ MonoBehaviour:
   PlayerDetectionRange: 40
   dashSpeed: 40
   HiddenTransparencyAmmount: 0.05
-  TeleportCooldown: 500
+  TeleportCooldown: 100
   MaxBatteryCapacity: 30
   RechargeTime: 6000
   AbilityDash: 0
   AbilityInvisible: 0
-  AbilityJump: 0
+  AbilityJump: 1
   AbilityTeleport: 0
   AbilityShootAndMove: 0
   AbilityReloadAndMove: 0
@@ -6003,13 +6003,13 @@ MonoBehaviour:
   AbilityDynamicRelocation: 0
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
-  AbilityExplodeOnDeath: 1
-  EnemyType: AIR
+  AbilityExplodeOnDeath: 0
+  EnemyType: GROUND
   IsDrone: 0
-  WeaponType: RANGED
+  WeaponType: ROCKET
   ParticleWeaponType: FIRE
   WeaponDamage: 5
-  WeaponFireRate: 50
+  WeaponFireRate: 1000
   WeaponRandomSpread: 7.5
   WeaponRange: 25
   WeaponProjectileSpeed: 40
@@ -8173,7 +8173,7 @@ Transform:
   m_GameObject: {fileID: 8863229738587227659}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.525669, y: 34.93, z: 0}
+  m_LocalPosition: {x: 46.02, y: -76.08, z: 0}
   m_LocalScale: {x: 0.09, y: 0.09, z: 0.09}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -8191,6 +8191,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0352972f1b0f7bf44a209f0d71fc13b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileScript
+  WeaponDamage: 0
+  WeaponRange: 0
 --- !u!50 &5380688474291201702
 Rigidbody2D:
   serializedVersion: 5
@@ -8384,6 +8386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca804d481f50ae64393e4a8aedbe8e13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRocket
+  duration: 0
   WeaponDamage: 0
 --- !u!212 &6693871653501164476
 SpriteRenderer:

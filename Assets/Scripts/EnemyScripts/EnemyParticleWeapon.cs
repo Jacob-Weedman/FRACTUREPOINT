@@ -50,7 +50,7 @@ public class EnemyParticleWeapon : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             //Damage
-            GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= 1;
+            GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= damageAmmount;
         }
 
         if (damageEnemies)

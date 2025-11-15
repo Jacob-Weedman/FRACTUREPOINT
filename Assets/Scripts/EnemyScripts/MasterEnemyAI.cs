@@ -29,7 +29,6 @@ public class MasterEnemyAI : MonoBehaviour
     Path path;
     int currentWaypoint = 0;
     bool reachedEndOfPath = false;
-    GameObject projectile;
     GameObject player;
     GameObject barrel;
     public List<GameObject> SuitablePositions;
@@ -160,7 +159,6 @@ public class MasterEnemyAI : MonoBehaviour
             target = Instantiate(GameObject.Find("FlyingTarget"), transform.position, Quaternion.identity);
         }
 
-        projectile = GameObject.Find("EnemyProjectile");
         player = GameObject.FindGameObjectWithTag("Player");
         barrel = transform.Find("Barrel").gameObject;
         LastKnownPlayerLocation = null;
@@ -208,7 +206,7 @@ public class MasterEnemyAI : MonoBehaviour
             //target = gameObject;
             MoveNextPatrol();
 
-            if (AbilityTeleport)
+            if (AbilityTeleport && canTeleport)
             {
                 Teleport();
             }
@@ -459,7 +457,7 @@ public class MasterEnemyAI : MonoBehaviour
                 canPursue = false;
                 target = LastKnownPlayerLocation;
 
-                if (AbilityTeleport)
+                if (AbilityTeleport && canTeleport)
                 {
                     Teleport();
                 }
@@ -549,6 +547,11 @@ public class MasterEnemyAI : MonoBehaviour
                 {
                     ComputeClosestPositionToPlayer();
                 }
+                if (canTeleport && AbilityTeleport)
+                {
+                    ComputeClosestPositionToPlayer();
+                    Teleport();
+                }
             }
         }
     }
@@ -573,8 +576,12 @@ public class MasterEnemyAI : MonoBehaviour
             case "RANGED":
                 // Create Projectile
                 GameObject BulletInstance;
-                BulletInstance = Instantiate(projectile, transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
-                BulletInstance.transform.parent = transform;
+                BulletInstance = Instantiate(GameObject.Find("EnemyProjectile"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                //BulletInstance.transform.parent = transform;
+
+                // Variables
+                BulletInstance.GetComponent<EnemyProjectileScript>().WeaponDamage = WeaponDamage;
+                BulletInstance.GetComponent<EnemyProjectileScript>().WeaponRange = WeaponRange;
 
                 // Send it on it's way
                 BulletInstance.GetComponent<Rigidbody2D>().linearVelocity = BulletInstance.transform.forward * -1 * WeaponProjectileSpeed;
@@ -585,16 +592,16 @@ public class MasterEnemyAI : MonoBehaviour
 
                 // Create Rocket
                 GameObject Rocket;
-                Rocket = Instantiate(GameObject.Find("EnemyRocket"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EnemyRocket").transform.position.z), Quaternion.identity);
-                Rocket.transform.rotation = Quaternion.Euler(Vector3.forward);
-
-                // Send it on its way
-                Rocket.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * WeaponProjectileSpeed * -1;
-                Rocket.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, Rocket.transform.forward) - 90));
+                Rocket = Instantiate(GameObject.Find("EnemyRocket"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
 
                 // Variables
                 Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;
+                Rocket.GetComponent<EnemyRocket>().duration = 30;
 
+                // Send it on its way
+                Rocket.GetComponent<Rigidbody2D>().linearVelocity = Rocket.transform.forward * -1 * WeaponProjectileSpeed;
+                Rocket.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, Rocket.transform.forward) - 90));
+                
                 break;
 
             case "PARTICLE":
@@ -727,7 +734,7 @@ public class MasterEnemyAI : MonoBehaviour
     {
         canTeleport = false;
         transform.position = target.transform.position;
-        await Task.Delay(TeleportCooldown + UnityEngine.Random.Range(0, TeleportCooldown / 2));
+        await Task.Delay(TeleportCooldown);
         canTeleport = true;
     }
 
@@ -787,12 +794,16 @@ public class MasterEnemyAI : MonoBehaviour
             if (SuitablePositions.Count > 0)
             {
                 target = SuitablePositions[UnityEngine.Random.Range(0, SuitablePositions.Count)];
-                foreach (GameObject pos in SuitablePositions)
+                
+                if (AbilityTeleport == false)
                 {
-                    //Find the point that is closest to the enemy
-                    if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                    foreach (GameObject pos in SuitablePositions)
                     {
-                        target = pos;
+                        //Find the point that is closest to the enemy
+                        if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                        {
+                            target = pos;
+                        }
                     }
                 }
             }

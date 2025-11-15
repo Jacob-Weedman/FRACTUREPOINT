@@ -5,19 +5,18 @@ using UnityEngine;
 
 public class EnemyRocket : MonoBehaviour
 {
-    float duration;
+    public float duration;
     public int WeaponDamage;
-
-    void Awake()
-    {
-        duration = 30;
-    }
 
     void FixedUpdate()
     {
         if (duration <= 0)
         {
             GetComponent<Rigidbody2D>().gravityScale = 3;
+        }
+        else
+        {
+            GetComponent<Rigidbody2D>().gravityScale = 0;
         }
         duration -= Time.deltaTime;
     }

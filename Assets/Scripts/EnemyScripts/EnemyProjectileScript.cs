@@ -7,21 +7,13 @@ public class EnemyProjectileScript : MonoBehaviour
 {
     Vector2 StartPosition;
 
-    int WeaponDamage;
-    int WeaponRange;
+    public int WeaponDamage;
+    public int WeaponRange;
     
-    void Start()
+    void Awake()
     {
         StartPosition = transform.position;
         GetComponent<SpriteRenderer>().enabled = true;
-
-        // Test Enemies
-        if (GetComponentInParent<MasterEnemyAI>())
-        {
-            WeaponDamage = GetComponentInParent<MasterEnemyAI>().WeaponDamage;
-            WeaponRange = GetComponentInParent<MasterEnemyAI>().WeaponRange;
-        }
-        
     }
 
     void Update()
@@ -47,10 +39,10 @@ public class EnemyProjectileScript : MonoBehaviour
             GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= WeaponDamage;
 
             //Send Hit Data (for repositioning)
-            if (GetComponentInParent<MasterEnemyAI>())
-            {
-                GetComponentInParent<MasterEnemyAI>().NumberOfHitsPerMag += 1;
-            }
+            //if (GetComponentInParent<MasterEnemyAI>())
+            //{
+            //    GetComponentInParent<MasterEnemyAI>().NumberOfHitsPerMag += 1;
+            //}
 
             Destroy(gameObject);
         }
