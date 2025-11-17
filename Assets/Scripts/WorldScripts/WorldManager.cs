@@ -33,7 +33,8 @@ public class WorldManager : MonoBehaviour
     {
         if (levelChosen == "test")
         {
-            SceneManager.LoadScene("WorkingPathfindingTest");
+            //SceneManager.LoadScene("WorkingPathfindingTest");
+            SceneManager.LoadScene("Sector1Boss");
         }
         else
         {

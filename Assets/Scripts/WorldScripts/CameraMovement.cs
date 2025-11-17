@@ -16,8 +16,6 @@ public class CameraMovement : MonoBehaviour
     GameObject TempPos;
     GameObject query;
     public bool TargetingPlayer = true;
-    public bool LockX = false;
-    public bool LockY = false;
 
     float CameraTweenAmmount = 0.005f;
     float CameraTweenRateX;
@@ -138,45 +136,6 @@ public class CameraMovement : MonoBehaviour
             else if (TargetingPlayer == true && Input.GetMouseButton(1) == false)
             {  
                 target.transform.position = new Vector2(player.transform.position.x, player.transform.position.y + 5);
-            }
-        }
-    }
-
-    //Move Camera Smoothly
-    void TweenX()
-    {
-        // Check if X value can be changed
-        if (LockX == false)
-            {
-            // Determine if the camera is on the left or right of the target position
-            if (transform.position.x > target.transform.position.x)
-            {
-                // Move camera left
-                transform.position = new Vector3(transform.position.x - (CameraTweenAmmount * CameraTweenRateX), transform.position.y, transform.position.z);
-            }
-            if (transform.position.x < target.transform.position.x)
-            {
-                // Move camera left
-                transform.position = new Vector3(transform.position.x + (CameraTweenAmmount * CameraTweenRateX), transform.position.y, transform.position.z);
-            }
-        }
-
-    }
-    void TweenY()
-    {
-        // Check if Y value can be changed
-        if (LockY == false)
-        {
-            // Determine Up or Down
-            if (transform.position.y > target.transform.position.y)
-            {
-                // Move camera Down
-                transform.position = new Vector3(transform.position.x, transform.position.y - (CameraTweenAmmount * CameraTweenRateY), transform.position.z);
-            }
-            if (transform.position.y < target.transform.position.y)
-            {
-                // Move camera Up
-                transform.position = new Vector3(transform.position.x, transform.position.y + (CameraTweenAmmount * CameraTweenRateY), transform.position.z);
             }
         }
     }
