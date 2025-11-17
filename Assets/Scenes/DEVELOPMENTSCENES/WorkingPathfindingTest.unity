@@ -3549,34 +3549,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7648da7fff980ce49a1a1c9cbec3ba01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightDrone
-  AllPositions: []
-  canMove: 1
-  canPursue: 0
-  canFire: 1
-  currentlyReloading: 0
-  currentlyInDroneBay: 1
-  DesiredDistance: 0
-  MinumumDistance: 10
-  targetingPlayer: 0
-  inFiringCycle: 0
-  WeaponCurrentMagazineAmmount: 0
-  NumberOfHitsPerMag: 0
-  CurrentBatteryCapacity: 0
-  currentlyTravelingToDroneBay: 0
-  currentlyRecharging: 0
-  angle: 0
-  Speed: 0.7
-  Health: 100
-  PlayerDetectionRange: 25
-  MaxBatteryCapacity: 30
-  RechargeTime: 6000
-  WeaponDamage: 5
-  WeaponFireRate: 100
-  WeaponRandomSpread: 5
-  WeaponRange: 30
-  WeaponProjectileSpeed: 30
-  WeaponMagazineSize: 50
-  WeaponReloadTime: 5000
 --- !u!61 &1193086074
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3756,7 +3728,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1267246498
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5986,7 +5958,7 @@ GameObject:
   - component: {fileID: 2076708461}
   - component: {fileID: 2076708460}
   m_Layer: 8
-  m_Name: BasicGroundEnemy
+  m_Name: MasterEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6012,31 +5984,36 @@ MonoBehaviour:
   Speed: 1
   JumpHeight: 1
   Health: 100
-  PatrolDistance: 15
+  MinumumDistance: 10
+  PatrolDistance: 10
   PatrolStallTime: 2000
-  PlayerDetectionRange: 20
+  PlayerDetectionRange: 40
   dashSpeed: 40
   HiddenTransparencyAmmount: 0.05
-  TeleportCooldown: 500
+  TeleportCooldown: 100
   MaxBatteryCapacity: 30
   RechargeTime: 6000
   AbilityDash: 0
   AbilityInvisible: 0
-  AbilityJump: 0
+  AbilityJump: 1
   AbilityTeleport: 0
   AbilityShootAndMove: 0
   AbilityReloadAndMove: 0
   AbilityMove: 1
-  EnemyType: AIR
+  AbilityDynamicRelocation: 0
+  AbilityExplodeOnContact: 0
+  AbilityExplodeNearPlayer: 0
+  AbilityExplodeOnDeath: 0
+  EnemyType: GROUND
   IsDrone: 0
-  WeaponType: RANGED
+  WeaponType: ROCKET
   ParticleWeaponType: FIRE
   WeaponDamage: 5
-  WeaponFireRate: 300
+  WeaponFireRate: 1000
   WeaponRandomSpread: 7.5
-  WeaponRange: 15
+  WeaponRange: 25
   WeaponProjectileSpeed: 40
-  WeaponMagazineSize: 20
+  WeaponMagazineSize: 100
   WeaponReloadTime: 3000
 --- !u!114 &2076708461
 MonoBehaviour:
@@ -8196,7 +8173,7 @@ Transform:
   m_GameObject: {fileID: 8863229738587227659}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.525669, y: 34.93, z: 0}
+  m_LocalPosition: {x: 46.02, y: -76.08, z: 0}
   m_LocalScale: {x: 0.09, y: 0.09, z: 0.09}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -8214,6 +8191,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0352972f1b0f7bf44a209f0d71fc13b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileScript
+  WeaponDamage: 0
+  WeaponRange: 0
 --- !u!50 &5380688474291201702
 Rigidbody2D:
   serializedVersion: 5
@@ -8407,6 +8386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca804d481f50ae64393e4a8aedbe8e13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRocket
+  duration: 0
   WeaponDamage: 0
 --- !u!212 &6693871653501164476
 SpriteRenderer:

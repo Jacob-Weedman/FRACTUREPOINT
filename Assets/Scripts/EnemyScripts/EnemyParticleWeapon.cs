@@ -4,16 +4,21 @@ using System.Threading.Tasks;
 //Designed by Jacob Weedman
 // Attatch to particle weapons
 
-public class ParticleWeapon : MonoBehaviour
+public class EnemyParticleWeapon : MonoBehaviour
 {
     public bool destroy = false;
     public bool rotate = false;
     public bool opacity = false;
     public bool destroyOnCollide = false;
+    public bool damageEnemies;
     public int damageAmmount;
-    public float timer = 3;
-    float startTime = 3;
+    public float timer;
+    float startTime;
 
+    void Awake()
+    {
+        startTime = timer;
+    }
 
     void FixedUpdate()
     {
@@ -45,7 +50,18 @@ public class ParticleWeapon : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             //Damage
-            GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= 1;
+            GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= damageAmmount;
+        }
+
+        if (damageEnemies)
+        {
+            if (collision.gameObject.layer == 8 || collision.gameObject.layer == 11)
+            {
+                if (collision.GetComponent<MasterEnemyAI>())
+                {
+                    collision.GetComponent<MasterEnemyAI>().Health -= damageAmmount;
+                }
+            }
         }
         
         if (destroyOnCollide)

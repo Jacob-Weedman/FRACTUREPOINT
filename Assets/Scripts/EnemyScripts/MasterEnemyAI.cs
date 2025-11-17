@@ -12,6 +12,13 @@ using System.Text;
 //
 // Configure to your likeing 
 // Not all options apply with every configuration
+//
+// PREREQUISITES
+// 1. The "Seeker" script from the A* pathfinding library must be attatched to the same game object
+// 2. A Rigidbody2D component must be attatched to the same game object
+// 3. A _Collider2D component must be attatched to the same game object
+// 4. Various game objects are required to be in the scene in order for this to function properly
+// 5. Various children game objects are required in order for this to funciton properly
 
 public class MasterEnemyAI : MonoBehaviour
 {
@@ -22,7 +29,6 @@ public class MasterEnemyAI : MonoBehaviour
     Path path;
     int currentWaypoint = 0;
     bool reachedEndOfPath = false;
-    GameObject projectile;
     GameObject player;
     GameObject barrel;
     public List<GameObject> SuitablePositions;
@@ -42,11 +48,10 @@ public class MasterEnemyAI : MonoBehaviour
     bool canJump = true;
     bool canMove = true; // Prevent all movement
     bool canPursue = false; // Follow player
-    bool canFire = false;
+    bool canFire = true;
     bool canDash = true;
     bool currentlyMovingToNextPatrolTarget = false;
     float DesiredDistance;
-    float MinumumDistance = 5f;
     int WeaponCurrentMagazineAmmount;
     public int NumberOfHitsPerMag = 0;
     bool canTeleport = true;
@@ -55,6 +60,7 @@ public class MasterEnemyAI : MonoBehaviour
     int CurrentBatteryCapacity;
     bool currentlyTravelingToDroneBay = false;
     bool currentlyRecharging = false;
+    bool primed = false; // For self-explosion
 
     #endregion
 
@@ -62,6 +68,7 @@ public class MasterEnemyAI : MonoBehaviour
     public float Speed = 1f; // In relation to player's walking speed
     public float JumpHeight = 1f; // In relation to player's regular jump height
     public float Health = 100;
+    public float MinumumDistance = 5f;
     public float PatrolDistance = 15;
     public int PatrolStallTime = 2000; //ms
     public int PlayerDetectionRange = 20;
@@ -79,6 +86,10 @@ public class MasterEnemyAI : MonoBehaviour
     public bool AbilityShootAndMove = false;
     public bool AbilityReloadAndMove = false;
     public bool AbilityMove = false;
+    public bool AbilityDynamicRelocation = false;
+    public bool AbilityExplodeOnContact = false;
+    public bool AbilityExplodeNearPlayer = false;
+    public bool AbilityExplodeOnDeath = false;
 
     #endregion
 
@@ -86,7 +97,7 @@ public class MasterEnemyAI : MonoBehaviour
 
     public string EnemyType = "GROUND"; // Options: "GROUND", "AIR"
     public bool IsDrone = false;
-    public string WeaponType = "RANGED"; // Options: "RANGED", "ROCKET", "PARTICLE", "MELEE", "GRENADE"
+    public string WeaponType = "RANGED"; // Options: "RANGED", "ROCKET", "PARTICLE", "MELEE", "GRENADE", "NONE"
     public string ParticleWeaponType = "FIRE"; // Options: "FIRE", "ELECTRICITY". NOTE: only used if public variable WeaponType = "PARTICLE" 
     public int WeaponDamage = 5; // Damage per hit
     public int WeaponFireRate = 300; // Delay in time between attacks both melee and ranged
@@ -114,7 +125,7 @@ public class MasterEnemyAI : MonoBehaviour
         StartPosition = transform.position;
         AllPositions = GameObject.FindGameObjectsWithTag("PossiblePositions").ToList();
 
-        if (EnemyType == "GROUND")
+        if (EnemyType == "GROUND") // Configure settings for Ground enemies
         {
             foreach (GameObject pos in AllPositions)
             {
@@ -124,17 +135,30 @@ public class MasterEnemyAI : MonoBehaviour
                 }
             }
 
+            gameObject.layer = LayerMask.NameToLayer("Enemies");
+
+            foreach (Transform child in gameObject.transform)
+            {
+                child.gameObject.layer = LayerMask.NameToLayer("Enemies");
+            }
+
+            GetComponent<Rigidbody2D>().gravityScale = 1.5f;
             target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
         }
 
-        if (EnemyType == "AIR")
+        if (EnemyType == "AIR") // Configure settings for Air enemies
         {
+            gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+
+            foreach (Transform child in gameObject.transform)
+            {
+                child.gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+            }
+
             GetComponent<Rigidbody2D>().gravityScale = 0;
             target = Instantiate(GameObject.Find("FlyingTarget"), transform.position, Quaternion.identity);
         }
-        
 
-        projectile = GameObject.Find("EnemyProjectile");
         player = GameObject.FindGameObjectWithTag("Player");
         barrel = transform.Find("Barrel").gameObject;
         LastKnownPlayerLocation = null;
@@ -177,12 +201,12 @@ public class MasterEnemyAI : MonoBehaviour
     // Pathfiniding Timeout
     void PathfindingTimeout()
     {
-        if (Vector2.Distance(transform.position, target.transform.position) > 0.5)
+        if (Vector2.Distance(transform.position, target.transform.position) > 0.5 || LastKnownPlayerLocation == null)
         {
-            target = gameObject;
+            //target = gameObject;
             MoveNextPatrol();
 
-            if (AbilityTeleport)
+            if (AbilityTeleport && canTeleport)
             {
                 Teleport();
             }
@@ -206,8 +230,12 @@ public class MasterEnemyAI : MonoBehaviour
         #region DEATH
         if (Health <= 0)
         {
+            if (AbilityExplodeNearPlayer == false && AbilityExplodeOnContact == false && AbilityExplodeOnDeath == false)
+            {
+            // Create carcas
             GameObject DeadBody;
             DeadBody = Instantiate(gameObject, transform.position, Quaternion.identity);
+            DeadBody.GetComponent<Rigidbody2D>().gravityScale = 1.5f;
             Destroy(GameObject.Find(DeadBody.name).GetComponent<MasterEnemyAI>());
             Destroy(GameObject.Find(DeadBody.name).GetComponent<Seeker>());
 
@@ -215,11 +243,37 @@ public class MasterEnemyAI : MonoBehaviour
             {
                 GameObject.Destroy(child.gameObject);
             }
+
             Destroy(gameObject);
+            }
+            else if (AbilityExplodeOnDeath == true)
+            {
+                Explode();
+            }
         }
+
+        // Explode when close to the player
+        if (AbilityExplodeNearPlayer && primed && Vector2.Distance(player.transform.position, transform.position) <= 2)
+        {
+            Explode();
+        }
+
         #endregion
 
         #region ICONS
+
+        // See where the enemy wants to go (DEBUGGING ONLY)
+        /*
+        if (target != null)
+        {
+            foreach (GameObject pos in AllPositions)
+            {
+                pos.GetComponent<SpriteRenderer>().enabled = false;
+            }
+            target.GetComponent<SpriteRenderer>().enabled = true;
+        }
+        */
+
         if (targetingPlayer && transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>())
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = true;
@@ -271,9 +325,9 @@ public class MasterEnemyAI : MonoBehaviour
 
         #region WEAPONATTACK
         // Check if enemy has line of sight on the player & if they are in the acceptable range       
-        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false && currentlyPatrolling == false)
+        if (WeaponCurrentMagazineAmmount > 0 && canFire == true && currentlyReloading == false && WeaponType != "NONE")
         {
-            if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange && Vector2.Distance(transform.position, player.transform.position) <= DesiredDistance)
+            if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= WeaponRange)
             {
                 UseWeapon();
             }
@@ -344,28 +398,39 @@ public class MasterEnemyAI : MonoBehaviour
 
         #region GROUND DETECTION
         //Detecting if the enemy has reached the ground
-        if (GetComponentInChildren<GroundCheck>().isGrounded == true && rb.linearVelocity.y == 0)
+        if (EnemyType == "GROUND")
         {
-            canJump = true;
-            if (inFiringCycle == false)
+            if (GetComponentInChildren<GroundCheck>().isGrounded == true && rb.linearVelocity.y == 0)
             {
-                canFire = true;
+                canJump = true;
+                if (inFiringCycle == false)
+                {
+                    canFire = true;
+                }
             }
-        }
-        else
-        {
-            canJump = false;
-            canFire = false;
+            else
+            {
+                canJump = false;
+                canFire = false;
+            }
         }
         #endregion
 
-        #region PATROL & DETECTION    
+        #region PATROL & DETECTION
+
+        // Check if the enemy is at the target location, used for moving to the next patrol target
+        if (Vector2.Distance(transform.position, target.transform.position) <= 1)
+        {
+            currentlyMovingToNextPatrolTarget = false;
+        }
+
         // Enemy detects player
         if (DetermineLineOfSight(gameObject, player) == true && Vector2.Distance(transform.position, player.transform.position) <= PlayerDetectionRange)
         {
             currentlyPatrolling = false;
             targetingPlayer = true;
             canPursue = true;
+            primed = true;
             // Get the last know player location by finding which of the positions is closest to the player
             if (LastKnownPlayerLocation == null)
             {
@@ -386,12 +451,13 @@ public class MasterEnemyAI : MonoBehaviour
         // Player has broken line of sight and the enemy will attempt to move to the last known location
         else if (LastKnownPlayerLocation != null)
         {
+            primed = false;
             if (Vector2.Distance(transform.position, LastKnownPlayerLocation.transform.position) > 0.5)
             {
                 canPursue = false;
                 target = LastKnownPlayerLocation;
 
-                if (AbilityTeleport)
+                if (AbilityTeleport && canTeleport)
                 {
                     Teleport();
                 }
@@ -410,7 +476,7 @@ public class MasterEnemyAI : MonoBehaviour
         // Go back to patrol move
         else
         {
-            LastKnownPlayerLocation = gameObject;
+            //LastKnownPlayerLocation = gameObject;
             currentlyPatrolling = true;
             targetingPlayer = false;
 
@@ -455,10 +521,10 @@ public class MasterEnemyAI : MonoBehaviour
             }
 
             // If the target is on the other side of the player (CHANGE TARGET)
-            if (Vector2.Distance(transform.position, player.transform.position) < Vector2.Distance(target.transform.position, player.transform.position))
-            {
-                ComputeClosestPositionToPlayer();
-            }
+            //if (Vector2.Distance(transform.position, player.transform.position) < Vector2.Distance(target.transform.position, player.transform.position))
+            //{
+            //    ComputeClosestPositionToPlayer();
+            //}
 
             // If the player is not within line of sight of the desired position (CHANGE TARGET)
             if (DetermineLineOfSight(target, player) == false)
@@ -477,9 +543,14 @@ public class MasterEnemyAI : MonoBehaviour
             // If the enemy reaches the target
             if (Vector2.Distance(target.transform.position, transform.position) <= 1 && DetermineLineOfSight(gameObject, player))
             {
-                if (canFire == false && inFiringCycle == false)
+                if (EnemyType == "AIR")
                 {
-                    //canFire = true;
+                    ComputeClosestPositionToPlayer();
+                }
+                if (canTeleport && AbilityTeleport)
+                {
+                    ComputeClosestPositionToPlayer();
+                    Teleport();
                 }
             }
         }
@@ -505,8 +576,12 @@ public class MasterEnemyAI : MonoBehaviour
             case "RANGED":
                 // Create Projectile
                 GameObject BulletInstance;
-                BulletInstance = Instantiate(projectile, transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
-                BulletInstance.transform.parent = transform;
+                BulletInstance = Instantiate(GameObject.Find("EnemyProjectile"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                //BulletInstance.transform.parent = transform;
+
+                // Variables
+                BulletInstance.GetComponent<EnemyProjectileScript>().WeaponDamage = WeaponDamage;
+                BulletInstance.GetComponent<EnemyProjectileScript>().WeaponRange = WeaponRange;
 
                 // Send it on it's way
                 BulletInstance.GetComponent<Rigidbody2D>().linearVelocity = BulletInstance.transform.forward * -1 * WeaponProjectileSpeed;
@@ -517,16 +592,16 @@ public class MasterEnemyAI : MonoBehaviour
 
                 // Create Rocket
                 GameObject Rocket;
-                Rocket = Instantiate(GameObject.Find("EnemyRocket"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("EnemyRocket").transform.position.z), Quaternion.identity);
-                Rocket.transform.rotation = Quaternion.Euler(Vector3.forward);
-
-                // Send it on its way
-                Rocket.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * WeaponProjectileSpeed * -1;
-                Rocket.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, Rocket.transform.forward) - 90));
+                Rocket = Instantiate(GameObject.Find("EnemyRocket"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
 
                 // Variables
                 Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;
+                Rocket.GetComponent<EnemyRocket>().duration = 30;
 
+                // Send it on its way
+                Rocket.GetComponent<Rigidbody2D>().linearVelocity = Rocket.transform.forward * -1 * WeaponProjectileSpeed;
+                Rocket.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, Rocket.transform.forward) - 90));
+                
                 break;
 
             case "PARTICLE":
@@ -534,6 +609,7 @@ public class MasterEnemyAI : MonoBehaviour
                 // Create particle
                 GameObject ParticleWeapon;
 
+                // Determine particle type
                 if (ParticleWeaponType == "ELECTRICITY") // Instantiate electrity object
                 {
                     ParticleWeapon = Instantiate(GameObject.Find("EvilAura"), new Vector3(barrel.transform.position.x, barrel.transform.position.y, GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
@@ -614,10 +690,11 @@ public class MasterEnemyAI : MonoBehaviour
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         currentlyReloading = false;
 
-        if (NumberOfHitsPerMag / WeaponMagazineSize < 0.5)
+        if (NumberOfHitsPerMag / WeaponMagazineSize < 0.5 && AbilityDynamicRelocation)
         {
             DesiredDistance -= 5;
         }
+
         NumberOfHitsPerMag = 0;
 
         canFire = true;
@@ -633,24 +710,22 @@ public class MasterEnemyAI : MonoBehaviour
         canPursue = false;
         currentlyMovingToNextPatrolTarget = true;
 
-        if (WeaponType == "GROUND")
+        if (EnemyType == "GROUND")
         {
             //Find Random Position nearby
             if (Vector2.Distance(transform.position, target.transform.position) <= 0.5 || PatrolPositions.Contains(target) == false)
             {
                 target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
-                await Task.Delay(PatrolStallTime + UnityEngine.Random.Range((PatrolStallTime * -1), PatrolStallTime));
+                await Task.Delay(PatrolStallTime);
             }
         }
 
-        if (WeaponType == "AIR")
+        if (EnemyType == "AIR")
         {
             //Find Random Position nearby
             target.transform.position = new Vector2((StartPosition.x + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)), (StartPosition.y + UnityEngine.Random.Range(-1 * PatrolDistance, PatrolDistance)));
-            await Task.Delay(PatrolStallTime + UnityEngine.Random.Range((PatrolStallTime * -1), PatrolStallTime));
+            await Task.Delay(PatrolStallTime);
         }
-
-        currentlyMovingToNextPatrolTarget = false;
 
     }
 
@@ -659,7 +734,7 @@ public class MasterEnemyAI : MonoBehaviour
     {
         canTeleport = false;
         transform.position = target.transform.position;
-        await Task.Delay(TeleportCooldown + UnityEngine.Random.Range(0, TeleportCooldown / 2));
+        await Task.Delay(TeleportCooldown);
         canTeleport = true;
     }
 
@@ -719,12 +794,16 @@ public class MasterEnemyAI : MonoBehaviour
             if (SuitablePositions.Count > 0)
             {
                 target = SuitablePositions[UnityEngine.Random.Range(0, SuitablePositions.Count)];
-                foreach (GameObject pos in SuitablePositions)
+                
+                if (AbilityTeleport == false)
                 {
-                    //Find the point that is closest to the enemy
-                    if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                    foreach (GameObject pos in SuitablePositions)
                     {
-                        target = pos;
+                        //Find the point that is closest to the enemy
+                        if (Vector2.Distance(transform.position, pos.transform.position) < Vector2.Distance(transform.position, target.transform.position))
+                        {
+                            target = pos;
+                        }
                     }
                 }
             }
@@ -732,10 +811,10 @@ public class MasterEnemyAI : MonoBehaviour
 
         if (EnemyType == "AIR")
         {
-            if (DetermineLineOfSight(player, gameObject))
-            {
+            //if (DetermineLineOfSight(player, gameObject))
+            //{
                 target.transform.position = new Vector2((player.transform.position.x + UnityEngine.Random.Range(-MinumumDistance, MinumumDistance)), (player.transform.position.y + MinumumDistance + UnityEngine.Random.Range(-5, 0)));
-            }
+            //}
         }
     }
 
@@ -774,6 +853,36 @@ public class MasterEnemyAI : MonoBehaviour
         CurrentBatteryCapacity = MaxBatteryCapacity;
         currentlyRecharging = false;
         canFire = true;
+    }
+
+    // Explode
+    void Explode()
+    {
+        //  Create Explosion
+        GameObject Explosion;
+        Explosion = Instantiate(GameObject.Find("Explosion"), new Vector3(transform.position.x, transform.position.y, GameObject.Find("Explosion").transform.position.z), Quaternion.identity);
+        Explosion.transform.rotation = Quaternion.Euler(Vector3.forward);
+
+        // Set Variables
+        Explosion.GetComponent<EnemyParticleWeapon>().destroy = true;
+        Explosion.GetComponent<EnemyParticleWeapon>().opacity = true;
+        Explosion.GetComponent<EnemyParticleWeapon>().timer = 3;
+        Explosion.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
+
+        // Destroy GameObject
+        Destroy(gameObject);
+    }
+
+    // On contact
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (primed && AbilityExplodeOnContact)
+        {
+            if (collision.gameObject.layer == LayerMask.NameToLayer("SolidGround") || collision.gameObject.layer == LayerMask.NameToLayer("Enemies") || collision.gameObject.layer == LayerMask.NameToLayer("FlyingEnemies") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                Explode();
+            }
+        }
     }
 }
 #endregion
