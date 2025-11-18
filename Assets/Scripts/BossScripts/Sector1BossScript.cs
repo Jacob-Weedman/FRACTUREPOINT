@@ -9,12 +9,15 @@ using System.Text;
 public class Sector1BossScript : MonoBehaviour
 {
 
+// Designed by Jacob Weedman
+
     GameObject Player;
 
     public int Phase = 1;
+    public float Health = 1000;
 
     bool canDeploy = true;
-    const int DEPLOYTIMER = 5000; // ms
+    public int DeployTimer = 4000; // ms
     public List<GameObject> DeployLocations;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -32,15 +35,40 @@ public class Sector1BossScript : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+
+        if (Health <= 500)
+        {
+            Phase = 2;
+        }
+
         switch (Phase)
         {
             case 1:
+
+                if (Health >= 900)
+            {
+                DeployTimer = 4000;
+            }
+            else if (Health >= 800)
+            {
+                DeployTimer = 2000;
+            }
+            else if (Health >= 700)
+            {
+                DeployTimer = 1000;
+            }
+            else if (Health >= 600)
+            {
+                DeployTimer = 50;
+            }
+
                 if (canDeploy)
                 {
                     Deploy();
                 }
+
                 break;
             case 2:
 
@@ -59,14 +87,14 @@ public class Sector1BossScript : MonoBehaviour
         GameObject ChosenSpawner = DeployLocations[UnityEngine.Random.Range(0, DeployLocations.Count() - 1)];
 
         GameObject Switchblade;
-        Switchblade = Instantiate(GameObject.Find("SwitchbladeEnemy"), new Vector3(ChosenSpawner.transform.position.x, ChosenSpawner.transform.position.y, 0), Quaternion.identity);
+        Switchblade = Instantiate(GameObject.Find("SwitchbladeEnemy"), new Vector3(ChosenSpawner.transform.position.x, ChosenSpawner.transform.position.y, -1), Quaternion.identity);
 
         Switchblade.GetComponent<Seeker>().enabled = true;
         Switchblade.GetComponent<MasterEnemyAI>().enabled = true;
 
-        Switchblade.GetComponent<Rigidbody2D>().AddForce(Vector2.up * 10);
+        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 5);
 
-        await Task.Delay(DEPLOYTIMER);
+        await Task.Delay(DeployTimer);
 
         canDeploy = true;
     }

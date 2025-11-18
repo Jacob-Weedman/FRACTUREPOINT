@@ -24,6 +24,10 @@ public class CameraMovement : MonoBehaviour
     float MinCameraTweenRate = 0.01f;
     public float MaxCameraDistance = 15f;
     public List<GameObject> InitialPanDestinations;
+    Vector3 StartLocation;
+    public float shake = 0;
+    public float shakeAmount= 0.7f;
+    float decreaseFactor = 1.0f;
 
 
     void Start()
@@ -77,9 +81,23 @@ public class CameraMovement : MonoBehaviour
             transform.position = new Vector3(transform.position.x, target.transform.position.y, transform.position.z);
         }
 
-        // Move Camera
-        transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 300);
+        // Camera Shake
+        if (shake > 0) {
+            //transform.localPosition = UnityEngine.Random.insideUnitSphere * shakeAmount;
+            transform.localPosition = new Vector3(UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.x, UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.y, -10);
+            shake -= Time.deltaTime * decreaseFactor;
 
+        } else {
+            StartLocation = transform.position;
+            
+            shake = 0.0f;
+            shakeAmount= 0.7f;
+
+            // Move Camera
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 300);
+        }
+
+        
 
         //Initial Pan
         if (InitialPanDestinations.Count > 0)

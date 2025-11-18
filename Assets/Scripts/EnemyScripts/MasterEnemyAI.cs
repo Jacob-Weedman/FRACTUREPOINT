@@ -73,6 +73,7 @@ public class MasterEnemyAI : MonoBehaviour
     public int PatrolStallTime = 2000; //ms
     public int PlayerDetectionRange = 20;
     public float dashSpeed = 40f; // Strength of the dash
+    public int dashDelay = 1000;
     public float HiddenTransparencyAmmount = 0.05f; // Strength of the cloaked transparency
     public int TeleportCooldown = 500; //ms
     public int MaxBatteryCapacity = 30; // Depletes one every second it is out of the bay
@@ -666,10 +667,10 @@ public class MasterEnemyAI : MonoBehaviour
     {
         canDash = false;
 
+        await Task.Delay(dashDelay); // Dash delay ms
+
         // Perform dash
         rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -1;
-
-        await Task.Delay(1000); // Dash delay ms
 
         canDash = true;
     }
@@ -858,6 +859,12 @@ public class MasterEnemyAI : MonoBehaviour
     // Explode
     void Explode()
     {
+        // Shake Camera
+        if (GameObject.Find("MainCamera"))
+        {
+            GameObject.Find("MainCamera").GetComponent<CameraMovement>().shake = 0.5f;
+        }
+
         //  Create Explosion
         GameObject Explosion;
         Explosion = Instantiate(GameObject.Find("Explosion"), new Vector3(transform.position.x, transform.position.y, GameObject.Find("Explosion").transform.position.z), Quaternion.identity);
