@@ -859,6 +859,12 @@ public class MasterEnemyAI : MonoBehaviour
     // Explode
     void Explode()
     {
+        // Shake Camera
+        if (GameObject.Find("MainCamera"))
+        {
+            GameObject.Find("MainCamera").GetComponent<CameraMovement>().shake = 0.5f;
+        }
+
         //  Create Explosion
         GameObject Explosion;
         Explosion = Instantiate(GameObject.Find("Explosion"), new Vector3(transform.position.x, transform.position.y, GameObject.Find("Explosion").transform.position.z), Quaternion.identity);
