@@ -43,6 +43,12 @@ public class EnemyParticleWeapon : MonoBehaviour
                 Destroy(gameObject);
             }
         }
+
+        // Remove Collider To Prevent Multiple Damage Occurances
+        if (timer/startTime <= 0.99)
+        {
+            gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
