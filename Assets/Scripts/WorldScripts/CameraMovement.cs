@@ -25,8 +25,10 @@ public class CameraMovement : MonoBehaviour
     public float MaxCameraDistance = 15f;
     public List<GameObject> InitialPanDestinations;
     Vector3 StartLocation;
-    public float shake = 0;
-    public float shakeAmount= 0.7f;
+    public float shake;
+    public float shakeAmount;
+    public float shakeInterval = 0.01f; //sec
+    public float currentShakeInterval = 0.01f; // sec
     float decreaseFactor = 1.0f;
 
 
@@ -83,21 +85,32 @@ public class CameraMovement : MonoBehaviour
 
         // Camera Shake
         if (shake > 0) {
-            //transform.localPosition = UnityEngine.Random.insideUnitSphere * shakeAmount;
-            transform.localPosition = new Vector3(UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.x, UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.y, -10);
+            if (currentShakeInterval <= 0)
+            {
+                currentShakeInterval = shakeInterval;
+
+                transform.localPosition = new Vector3(UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.x, UnityEngine.Random.Range(-shakeAmount, shakeAmount) + StartLocation.y, -10);
+            }
+            else
+            {
+                currentShakeInterval -= Time.deltaTime;
+            }
+            shakeInterval += 0.15f * Time.deltaTime;
+            shakeAmount -= 0.15f * Time.deltaTime;
             shake -= Time.deltaTime * decreaseFactor;
 
-        } else {
+        } 
+        else 
+        {
             StartLocation = transform.position;
             
             shake = 0.0f;
-            shakeAmount= 0.7f;
+            shakeAmount= 0.0f;
+            shakeInterval = 0.01f;
 
             // Move Camera
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 300);
         }
-
-        
 
         //Initial Pan
         if (InitialPanDestinations.Count > 0)
@@ -157,4 +170,11 @@ public class CameraMovement : MonoBehaviour
             }
         }
     }
+
+    public void shakeCamera(float duration, float intensity)
+    {
+        shake = duration;
+        shakeAmount = intensity;
+    }
+
 }
