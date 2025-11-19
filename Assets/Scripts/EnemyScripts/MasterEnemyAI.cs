@@ -669,7 +669,25 @@ public class MasterEnemyAI : MonoBehaviour
     {
         canDash = false;
 
+
         await Task.Delay(dashDelay); // Dash delay ms
+
+        // Flash Red
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
+
+        await Task.Delay(100);
+
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+
+        await Task.Delay(100);
+
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
+
+        await Task.Delay(100);
+
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+
+        await Task.Delay(100);
 
         // Perform dash
         rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -1;
@@ -862,7 +880,7 @@ public class MasterEnemyAI : MonoBehaviour
     void Explode()
     {
         // Shake Camera
-        Camera.GetComponent<CameraMovement>().shakeCamera(1f, 0.5f);
+        Camera.GetComponent<CameraMovement>().shakeCamera(0.8f, 0.5f);
 
         //  Create Explosion
         GameObject Explosion;

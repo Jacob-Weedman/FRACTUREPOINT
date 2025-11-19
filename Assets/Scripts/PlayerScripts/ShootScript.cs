@@ -5,7 +5,7 @@ public class ShootScript: MonoBehaviour
 {
     public Transform Gun, ShootPoint;
     public GameObject Bullet;
-    public float BulletSpeed;
+    public float BulletSpeed, BulletRange;
     Vector2 direction;
 
     private void Update()
@@ -21,9 +21,12 @@ public class ShootScript: MonoBehaviour
         Gun.transform.right = direction;
     }
 
-    public void Shoot()
+    public void Shoot(string projectile, float speed, float range)
     {
-        GameObject BulletInstance = Instantiate(Bullet, ShootPoint.position, ShootPoint.rotation * Quaternion.Euler(0, 0, 90));
+        BulletSpeed = speed;
+        BulletRange = range;
+
+        GameObject BulletInstance = Instantiate(GameObject.Find(projectile), ShootPoint.position, ShootPoint.rotation * Quaternion.Euler(0, 0, 90));
         BulletInstance.GetComponent<Rigidbody2D>().AddForce(BulletInstance.transform.up * -1 * BulletSpeed);
 
     }
