@@ -7,7 +7,7 @@ Indie game made as part of a Highschool class with several other people.
 
 ### Jacob Weedman
 <sup>"Check my scripts"</sup><br>
-Enemies/Bosses Programming, Enemy Concepts, Misc Level Programing, Concept Artist, Promotional Artist, Team Lead
+Enemy/Boss Programming, Enemy/Boss Concepts, Concept Artist, Promotional Artist, Team Lead
 
 ### Jordan Knox
 Story, Character/Enemy/NPC Concepts, Level Design, Level Artist, Social Media

@@ -25,6 +25,7 @@ public class MasterEnemyAI : MonoBehaviour
 
     #region MISC VARIABLES (DO NOT CHANGE VALUES)
     GameObject target;
+    GameObject Camera;
     float nextWaypointDistance = 5;
     Path path;
     int currentWaypoint = 0;
@@ -160,6 +161,7 @@ public class MasterEnemyAI : MonoBehaviour
             target = Instantiate(GameObject.Find("FlyingTarget"), transform.position, Quaternion.identity);
         }
 
+        Camera = GameObject.FindGameObjectWithTag("MainCamera");
         player = GameObject.FindGameObjectWithTag("Player");
         barrel = transform.Find("Barrel").gameObject;
         LastKnownPlayerLocation = null;
@@ -860,10 +862,7 @@ public class MasterEnemyAI : MonoBehaviour
     void Explode()
     {
         // Shake Camera
-        if (GameObject.Find("MainCamera"))
-        {
-            GameObject.Find("MainCamera").GetComponent<CameraMovement>().shake = 0.5f;
-        }
+        Camera.GetComponent<CameraMovement>().shakeCamera(1f, 0.5f);
 
         //  Create Explosion
         GameObject Explosion;
