@@ -33,7 +33,7 @@ public class Sector1BossScript : MonoBehaviour
     float InitialMoveCountdown = 2; //sec
     float MoveCountdown = 6; // sec
 
-    int WeaponDamage = 7;
+    int WeaponDamage = 3;
     int WeaponRange = 50;
     int WeaponProjectileSpeed = 40;
     int WeaponRandomSpread = 7;
