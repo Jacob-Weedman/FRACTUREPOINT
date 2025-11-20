@@ -25,11 +25,10 @@ public class CameraMovement : MonoBehaviour
     public float MaxCameraDistance = 15f;
     public List<GameObject> InitialPanDestinations;
     Vector3 StartLocation;
-    public float shake;
+    public float shakeDuration;
     public float shakeAmount;
     public float shakeInterval = 0.01f; //sec
     public float currentShakeInterval = 0.01f; // sec
-    float decreaseFactor = 1.0f;
 
 
     void Start()
@@ -84,7 +83,7 @@ public class CameraMovement : MonoBehaviour
         }
 
         // Camera Shake
-        if (shake > 0) {
+        if (shakeDuration > 0) {
             if (currentShakeInterval <= 0)
             {
                 currentShakeInterval = shakeInterval;
@@ -97,14 +96,14 @@ public class CameraMovement : MonoBehaviour
             }
             shakeInterval += 0.15f * Time.deltaTime;
             shakeAmount -= 0.15f * Time.deltaTime;
-            shake -= Time.deltaTime * decreaseFactor;
+            shakeDuration -= Time.deltaTime;
 
         } 
         else 
         {
             StartLocation = transform.position;
             
-            shake = 0.0f;
+            shakeDuration = 0.0f;
             shakeAmount= 0.0f;
             shakeInterval = 0.01f;
 
@@ -173,8 +172,9 @@ public class CameraMovement : MonoBehaviour
 
     public void shakeCamera(float duration, float intensity)
     {
-        shake = duration;
+        shakeDuration = duration;
         shakeAmount = intensity;
+        shakeInterval = 0.01f;
     }
 
 }
