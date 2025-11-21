@@ -58,17 +58,22 @@ public class EnemyParticleWeapon : MonoBehaviour
             //Damage
             GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= damageAmmount;
         }
-
-        if (damageEnemies)
+        if (collision.gameObject.tag == "Attackable")
         {
-            if (collision.gameObject.layer == 8 || collision.gameObject.layer == 11)
+            //Enemies
+            if (collision.GetComponent<MasterEnemyAI>())
             {
-                if (collision.GetComponent<MasterEnemyAI>())
-                {
-                    collision.GetComponent<MasterEnemyAI>().Health -= damageAmmount;
-                }
+                collision.GetComponent<MasterEnemyAI>().Health -= damageAmmount;
             }
+
+            //Generic Destructable Object
+            if (collision.GetComponent<GenericDestructable>())
+            {
+                collision.GetComponent<GenericDestructable>().Health -= damageAmmount;
+            }
+
         }
+
         
         if (destroyOnCollide)
         {

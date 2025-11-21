@@ -14,8 +14,8 @@ public class GameData : MonoBehaviour
     public string CharacterName; //
     public string CurrentSector;
     public string CurrentLevel;
-    public int MaxHealth;
-    public int CurrentHealth;
+    public float MaxHealth;
+    public float CurrentHealth;
     public int CurrentExp;
     public int LevelsCompleted;
     public int BossesDefeated;

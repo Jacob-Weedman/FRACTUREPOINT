@@ -1,20 +1,50 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class bulletScript : MonoBehaviour
 {
-    private float range;
+    private ShootScript shootScript;
+    private float range, damage;
     private Rigidbody2D body;
     Vector3 startPos;
     void Awake()
     {
+        shootScript = GameObject.Find("Player").GetComponent<ShootScript>();
         body = GetComponent<Rigidbody2D>();
-        range = GetComponent<ShootScript>().BulletRange;
+        range = shootScript.BulletRange;
+        damage = shootScript.BulletDamage;
         startPos = transform.position;
     }
     void Update()
     {
         Vector3 currentPos = transform.position;
-        if (Vector2.Distance(startPos, currentPos) > range) body.gravityScale = 4;
+        if (Vector2.Distance(startPos, currentPos) > range) body.gravityScale = 1;
 
     }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+
+        if (collision.CompareTag("Attackable"))
+        {
+            if (collision.GetComponent<MasterEnemyAI>()) collision.GetComponent<MasterEnemyAI>().Health -= damage;
+
+            if (collision.GetComponent<GenericDestructable>())
+            {
+
+                if (collision.GetComponent<GenericDestructable>().AttackableByPlayer) {
+                    collision.GetComponent<GenericDestructable>().Health -= damage;
+                }
+
+            }
+           
+            Destroy(gameObject);
+        }
+
+        if (collision.CompareTag("Ground")) Destroy(gameObject);
+
+
+    }
+
+
 }

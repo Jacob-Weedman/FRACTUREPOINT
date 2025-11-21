@@ -3,13 +3,13 @@ using UnityEngine;
 public class BasicMelee : MonoBehaviour
 {
 
-    public int damage = 1;
+    public float damage = 15;
     void OnTriggerEnter2D(Collider2D collision) 
     {
 
         if (collision.CompareTag("Attackable"))
         {
-            collision.GetComponent<EnemyHealth>()?.TakeDamage(damage);
+            collision.GetComponent<MasterEnemyAI>().Health -= damage;
             Debug.Log("hit an enemy");
 
         }

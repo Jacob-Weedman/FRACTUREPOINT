@@ -423,7 +423,7 @@ public class playerController : MonoBehaviour
                     break;
 
                 case "Gun":
-                    GetComponent<ShootScript>().Shoot("Bullet", 40, 10);
+                    GetComponent<ShootScript>().Shoot("Bullet", 1000f, 10f, 25f, .25f);
                     break;
                     #endregion
             }
