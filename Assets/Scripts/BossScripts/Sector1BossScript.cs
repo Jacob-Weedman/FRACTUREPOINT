@@ -22,7 +22,7 @@ public class Sector1BossScript : MonoBehaviour
     public int Phase = 1;
     public float Health = 1000;
 
-    float angle;
+    public float angle;
 
     bool canDeploy = true;
     public int DeployTimer = 4000; // ms
@@ -92,6 +92,18 @@ public class Sector1BossScript : MonoBehaviour
 #region Phase1
 
             case 1: // Phase 1
+            if (ChosenFireZone)
+            {
+                // Angle spotlight towards fireing zone
+                angle = Mathf.Atan2(ChosenFireZone.transform.position.y - Barrel.transform.position.y, ChosenFireZone.transform.position.x - Barrel.transform.position.x) * Mathf.Rad2Deg;
+                angle += 90;
+                // Rotate spotlight towards fireing zone
+                Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
+                
+                //Spotlight.transform.localPosition = new Vector2((angle/20) - 0.1f + 0.1f, (angle * angle / 2300) - 1.9f);
+            
+            }
 
             CombinedSpawnerHealthPercent = 0;
             foreach (Transform spawner in transform)
@@ -147,9 +159,6 @@ public class Sector1BossScript : MonoBehaviour
 
                     Spotlight.GetComponent<SpriteRenderer>().enabled = true;
 
-                    // Angle spotlight towards fireing zone
-                    angle = Mathf.Atan2(ChosenFireZone.transform.position.y - Spotlight.transform.position.y, ChosenFireZone.transform.position.x - Spotlight.transform.position.x) * Mathf.Rad2Deg;
-
                 }
                 else
                 {
@@ -161,11 +170,6 @@ public class Sector1BossScript : MonoBehaviour
                     Spotlight.GetComponent<SpriteRenderer>().enabled = false;
                 }
             }
-
-            // Rotate spotlight towards fireing zone
-                    Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
-                    Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
-
 
             MoveCountdown -= Time.deltaTime;
             if (Vector2.Distance(Target.transform.position, transform.position) <= 0.1)
