@@ -25,7 +25,8 @@ public class Sector1BossScript : MonoBehaviour
     public float angle;
 
     bool canDeploy = true;
-    public int DeployTimer = 4000; // ms
+    public float DeployTimer = 4; // sec
+    float CurrentDeployTimer; // sec
     public List<GameObject> DeployLocations;
     public List<GameObject> FireZones;
 
@@ -50,7 +51,7 @@ public class Sector1BossScript : MonoBehaviour
     void Start()
     {
         Player = GameObject.FindWithTag("Player");
-        Spotlight = transform.Find("Spotlight").gameObject;
+        Spotlight = transform.Find("SpotlightAxis").gameObject;
         Barrel = transform.Find("Barrel").gameObject;
         Target = GameObject.Find("BossTarget");
         Target.transform.position = transform.position;
@@ -95,14 +96,12 @@ public class Sector1BossScript : MonoBehaviour
             if (ChosenFireZone)
             {
                 // Angle spotlight towards fireing zone
-                angle = Mathf.Atan2(ChosenFireZone.transform.position.y - Barrel.transform.position.y, ChosenFireZone.transform.position.x - Barrel.transform.position.x) * Mathf.Rad2Deg;
+                angle = Mathf.Atan2(ChosenFireZone.transform.position.y + 10 - Barrel.transform.position.y, ChosenFireZone.transform.position.x - Barrel.transform.position.x) * Mathf.Rad2Deg;
                 angle += 90;
                 // Rotate spotlight towards fireing zone
                 Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
                 Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
-                
-                //Spotlight.transform.localPosition = new Vector2((angle/20) - 0.1f + 0.1f, (angle * angle / 2300) - 1.9f);
-            
+                        
             }
 
             CombinedSpawnerHealthPercent = 0;
@@ -119,22 +118,22 @@ public class Sector1BossScript : MonoBehaviour
 
             if (Health >= 900)
             {
-                DeployTimer = 4000;
+                DeployTimer = 4;
                 InititialChoiceCountdown = 5;
             }
             else if (Health >= 800)
             {
-                DeployTimer = 2000;
+                DeployTimer = 2;
                 InititialChoiceCountdown = 4;
             }
             else if (Health >= 700)
             {
-                DeployTimer = 1000;
+                DeployTimer = 1;
                 InititialChoiceCountdown = 2.5f;
             }
             else if (Health >= 600)
             {
-                DeployTimer = 500;
+                DeployTimer = 0.5f;
                 InititialChoiceCountdown = 1;
             }
 
@@ -151,23 +150,23 @@ public class Sector1BossScript : MonoBehaviour
 
                     foreach (GameObject location in FireZones) // Set all fire zones to invisible
                     {
-                        location.GetComponent<SpriteRenderer>().enabled = false;
+                        //location.GetComponent<SpriteRenderer>().enabled = false;
                     }
 
                     ChosenFireZone = FireZones[UnityEngine.Random.Range(0, FireZones.Count())];
-                    ChosenFireZone.GetComponent<SpriteRenderer>().enabled = true;
+                    //ChosenFireZone.GetComponent<SpriteRenderer>().enabled = true;
 
-                    Spotlight.GetComponent<SpriteRenderer>().enabled = true;
-
+                    Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = true;
+                
                 }
                 else
                 {
                     foreach (GameObject location in FireZones) // Set all fire zones to invisible
                     {
-                        location.GetComponent<SpriteRenderer>().enabled = false;
+                        //location.GetComponent<SpriteRenderer>().enabled = false;
                     }
 
-                    Spotlight.GetComponent<SpriteRenderer>().enabled = false;
+                    Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = false;
                 }
             }
 
@@ -188,8 +187,17 @@ public class Sector1BossScript : MonoBehaviour
             switch (Choice)
             {
                 case 0: // deploy
+
+                CurrentDeployTimer -= Time.deltaTime;
+                if (CurrentDeployTimer <= 0)
+                {
+                    canDeploy = true;
+                }
+
                 if (canDeploy)
                 {
+                    CurrentDeployTimer = DeployTimer;
+                    canDeploy = false;
                     Deploy();
                 }
                 break;
@@ -226,22 +234,25 @@ public class Sector1BossScript : MonoBehaviour
 
     async Task Deploy()
     {
-        canDeploy = false;
-
         // Find Which module to deploy from
         GameObject ChosenSpawner = DeployLocations[UnityEngine.Random.Range(0, DeployLocations.Count())];
 
         GameObject Switchblade;
         Switchblade = Instantiate(GameObject.Find("SwitchbladeEnemy"), new Vector3(ChosenSpawner.transform.position.x, ChosenSpawner.transform.position.y, -1), Quaternion.identity);
+        Switchblade.transform.parent = gameObject.transform;
+
+        Switchblade.GetComponent<MasterEnemyAI>().enabled = true;
+        Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = false;
+        Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = false;
+
+        await Task.Delay(1000);
 
         Switchblade.GetComponent<Seeker>().enabled = true;
-        Switchblade.GetComponent<MasterEnemyAI>().enabled = true;
+        Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = true;
+        Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = true;
 
-        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 10);
-
-        await Task.Delay(DeployTimer);
-
-        canDeploy = true;
+        Switchblade.transform.parent = null;
+        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 20);
     }
 
     void Shoot()

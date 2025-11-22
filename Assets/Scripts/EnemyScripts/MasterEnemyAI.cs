@@ -902,7 +902,7 @@ public class MasterEnemyAI : MonoBehaviour
     {
         if (primed && AbilityExplodeOnContact)
         {
-            if (collision.gameObject.layer == LayerMask.NameToLayer("SolidGround") || collision.gameObject.layer == LayerMask.NameToLayer("Enemies") || collision.gameObject.layer == LayerMask.NameToLayer("FlyingEnemies") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+            if (collision.gameObject.layer == LayerMask.NameToLayer("SolidGround") || collision.gameObject.layer == LayerMask.NameToLayer("Enemies") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
                 Explode();
             }
