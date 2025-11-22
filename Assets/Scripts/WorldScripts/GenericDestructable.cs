@@ -21,6 +21,7 @@ public class GenericDestructable : MonoBehaviour
                     break;
                 case "DISABLE":
                 gameObject.tag = "Destroyed";
+                GetComponent<GenericDestructable>().enabled = false;
                     break;
                 default:
                     break;

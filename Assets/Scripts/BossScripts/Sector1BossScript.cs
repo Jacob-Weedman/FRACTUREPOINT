@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using Pathfinding;
@@ -16,9 +17,12 @@ public class Sector1BossScript : MonoBehaviour
     GameObject Barrel;
     GameObject Target;
     GameObject ChosenFireZone;
+    GameObject Spotlight;
 
     public int Phase = 1;
     public float Health = 1000;
+
+    float angle;
 
     bool canDeploy = true;
     public int DeployTimer = 4000; // ms
@@ -26,16 +30,18 @@ public class Sector1BossScript : MonoBehaviour
     public List<GameObject> FireZones;
 
     public int Choice; // 0 == deploy, 1 == shoot
-    float InititialChoiceCountdown = 5; // sec
-    float ChoiceCountdown = 5; // sec
+    float InititialChoiceCountdown = 5f; // sec
+    float ChoiceCountdown; // sec
     float InitialBulletInterval = 0.01f;
     float BulletInterval = 0.01f;
     float InitialMoveCountdown = 2; //sec
     float MoveCountdown = 6; // sec
 
+    public float CombinedSpawnerHealthPercent;
+
     int WeaponDamage = 3;
     int WeaponRange = 50;
-    int WeaponProjectileSpeed = 40;
+    int WeaponProjectileSpeed = 20;
     int WeaponRandomSpread = 7;
 
     float MovementSpeed = 5f;
@@ -44,6 +50,7 @@ public class Sector1BossScript : MonoBehaviour
     void Start()
     {
         Player = GameObject.FindWithTag("Player");
+        Spotlight = transform.Find("Spotlight").gameObject;
         Barrel = transform.Find("Barrel").gameObject;
         Target = GameObject.Find("BossTarget");
         Target.transform.position = transform.position;
@@ -53,10 +60,14 @@ public class Sector1BossScript : MonoBehaviour
             if (spawner.name == "SwitchbladeSpawner")
             {
                 DeployLocations.Add(spawner.gameObject);
+                CombinedSpawnerHealthPercent += spawner.GetComponent<GenericDestructable>().Health;
             }
         }
+        CombinedSpawnerHealthPercent = CombinedSpawnerHealthPercent / 3;
 
         FireZones = GameObject.FindGameObjectsWithTag("1").ToList();
+
+        ChoiceCountdown = InititialChoiceCountdown;
         
     }
 
@@ -64,6 +75,7 @@ public class Sector1BossScript : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        GameObject.Find("HealthIndicator").GetComponent<Text>().text = Health.ToString(); 
 
         if (Phase == 1 && Choice == 0)
         {
@@ -81,22 +93,40 @@ public class Sector1BossScript : MonoBehaviour
 
             case 1: // Phase 1
 
-                if (Health >= 900)
+            CombinedSpawnerHealthPercent = 0;
+            foreach (Transform spawner in transform)
+            {
+                if (spawner.name == "SwitchbladeSpawner")
+                {
+                    CombinedSpawnerHealthPercent += spawner.GetComponent<GenericDestructable>().Health;
+                }
+            }
+            CombinedSpawnerHealthPercent = CombinedSpawnerHealthPercent / 3;
+
+            Health = 500 + CombinedSpawnerHealthPercent * 5;
+
+            if (Health >= 900)
             {
                 DeployTimer = 4000;
+                InititialChoiceCountdown = 5;
             }
             else if (Health >= 800)
             {
                 DeployTimer = 2000;
+                InititialChoiceCountdown = 4;
             }
             else if (Health >= 700)
             {
                 DeployTimer = 1000;
+                InititialChoiceCountdown = 2.5f;
             }
             else if (Health >= 600)
             {
                 DeployTimer = 500;
+                InititialChoiceCountdown = 1;
             }
+
+            
 
             ChoiceCountdown -= Time.deltaTime;
             if (ChoiceCountdown <= 0)
@@ -106,6 +136,7 @@ public class Sector1BossScript : MonoBehaviour
 
                 if (Choice == 1) // Find random firing zone
                 {
+
                     foreach (GameObject location in FireZones) // Set all fire zones to invisible
                     {
                         location.GetComponent<SpriteRenderer>().enabled = false;
@@ -113,6 +144,12 @@ public class Sector1BossScript : MonoBehaviour
 
                     ChosenFireZone = FireZones[UnityEngine.Random.Range(0, FireZones.Count())];
                     ChosenFireZone.GetComponent<SpriteRenderer>().enabled = true;
+
+                    Spotlight.GetComponent<SpriteRenderer>().enabled = true;
+
+                    // Angle spotlight towards fireing zone
+                    angle = Mathf.Atan2(ChosenFireZone.transform.position.y - Spotlight.transform.position.y, ChosenFireZone.transform.position.x - Spotlight.transform.position.x) * Mathf.Rad2Deg;
+
                 }
                 else
                 {
@@ -120,8 +157,15 @@ public class Sector1BossScript : MonoBehaviour
                     {
                         location.GetComponent<SpriteRenderer>().enabled = false;
                     }
+
+                    Spotlight.GetComponent<SpriteRenderer>().enabled = false;
                 }
             }
+
+            // Rotate spotlight towards fireing zone
+                    Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                    Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
+
 
             MoveCountdown -= Time.deltaTime;
             if (Vector2.Distance(Target.transform.position, transform.position) <= 0.1)
