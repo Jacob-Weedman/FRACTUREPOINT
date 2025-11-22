@@ -38,8 +38,6 @@ public class Sector1BossScript : MonoBehaviour
     float InitialMoveCountdown = 2; //sec
     float MoveCountdown = 6; // sec
 
-    public float CombinedSpawnerHealthPercent;
-
     int WeaponDamage = 3;
     int WeaponRange = 50;
     int WeaponProjectileSpeed = 20;
@@ -61,10 +59,8 @@ public class Sector1BossScript : MonoBehaviour
             if (spawner.name == "SwitchbladeSpawner")
             {
                 DeployLocations.Add(spawner.gameObject);
-                CombinedSpawnerHealthPercent += spawner.GetComponent<GenericDestructable>().Health;
             }
         }
-        CombinedSpawnerHealthPercent = CombinedSpawnerHealthPercent / 3;
 
         FireZones = GameObject.FindGameObjectsWithTag("1").ToList();
 
@@ -76,6 +72,8 @@ public class Sector1BossScript : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        Health = gameObject.GetComponent<GenericDestructable>().Health;
+
         GameObject.Find("HealthIndicator").GetComponent<Text>().text = Health.ToString(); 
 
         if (Phase == 1 && Choice == 0)
@@ -103,18 +101,6 @@ public class Sector1BossScript : MonoBehaviour
                 Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
                         
             }
-
-            CombinedSpawnerHealthPercent = 0;
-            foreach (Transform spawner in transform)
-            {
-                if (spawner.name == "SwitchbladeSpawner")
-                {
-                    CombinedSpawnerHealthPercent += spawner.GetComponent<GenericDestructable>().Health;
-                }
-            }
-            CombinedSpawnerHealthPercent = CombinedSpawnerHealthPercent / 3;
-
-            Health = 500 + CombinedSpawnerHealthPercent * 5;
 
             if (Health >= 900)
             {
