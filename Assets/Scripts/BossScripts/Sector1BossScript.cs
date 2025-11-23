@@ -74,7 +74,7 @@ public class Sector1BossScript : MonoBehaviour
     {
         Health = gameObject.GetComponent<GenericDestructable>().Health;
 
-        GameObject.Find("HealthIndicator").GetComponent<Text>().text = Health.ToString(); 
+        GameObject.Find("HealthIndicator").transform.localScale = new Vector3(Health / 1000 * 30, 1, 1);
 
         if (Phase == 1 && Choice == 0)
         {

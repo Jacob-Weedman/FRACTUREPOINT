@@ -893,6 +893,12 @@ public class MasterEnemyAI : MonoBehaviour
         Explosion.GetComponent<EnemyParticleWeapon>().timer = 3;
         Explosion.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
+        // Destroy Flying Target
+        if (EnemyType == "AIR")
+        {
+            Destroy(target);
+        }
+
         // Destroy GameObject
         Destroy(gameObject);
     }
