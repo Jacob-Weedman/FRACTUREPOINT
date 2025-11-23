@@ -19,7 +19,7 @@ public class Sector1BossScript : MonoBehaviour
     GameObject ChosenFireZone;
     GameObject Spotlight;
 
-    public int Phase = 1;
+    public float Phase = 0.5f;
     public float Health = 1000;
 
     public float angle;
@@ -81,16 +81,19 @@ public class Sector1BossScript : MonoBehaviour
             BackgroundMove();
         }
 
-        if (Health <= 500)
-        {
-            Phase = 2;
-        }
-
         switch (Phase)
         {
 #region Phase1
 
             case 1: // Phase 1
+
+            if (Health <= 500)
+            {
+                Health = 500;
+                Phase = 1.5f;
+                gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 100;
+            }
+
             if (ChosenFireZone)
             {
                 // Angle spotlight towards fireing zone
@@ -205,6 +208,22 @@ public class Sector1BossScript : MonoBehaviour
                 break;               
             }
                 break;
+
+#endregion
+
+#region Cutscene between 1 - 2
+
+    case 1.5f: // Cutscene between plases 1 & 2
+        gameObject.GetComponent<Rigidbody2D>().gravityScale = 3;
+        gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
+        gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+
+        if (transform.position.y <= 1.5)
+        {
+            Phase = 2;
+        }
+
+        break;
 
 #endregion
 
