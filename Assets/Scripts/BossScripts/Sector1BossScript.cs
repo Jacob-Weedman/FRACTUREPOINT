@@ -18,6 +18,7 @@ public class Sector1BossScript : MonoBehaviour
     GameObject Target;
     GameObject ChosenFireZone;
     GameObject Spotlight;
+    GameObject Camera;
 
     public float Phase = 0.5f;
     public float Health = 1000;
@@ -38,6 +39,12 @@ public class Sector1BossScript : MonoBehaviour
     float InitialMoveCountdown = 2; //sec
     float MoveCountdown = 6; // sec
 
+    bool canJump = true;
+    float InitialJumpDelay = 1000;
+    float JumpDelay = 1000;
+
+    bool canShockwaveDamage = true;
+    int ShockwaveDamage = 10;
     int WeaponDamage = 3;
     int WeaponRange = 50;
     int WeaponProjectileSpeed = 20;
@@ -48,6 +55,8 @@ public class Sector1BossScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Camera = GameObject.FindGameObjectWithTag("MainCamera");
+
         Player = GameObject.FindWithTag("Player");
         Spotlight = transform.Find("SpotlightAxis").gameObject;
         Barrel = transform.Find("Barrel").gameObject;
@@ -91,7 +100,7 @@ public class Sector1BossScript : MonoBehaviour
             {
                 Health = 500;
                 Phase = 1.5f;
-                gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 100;
+                gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 80;
             }
 
             if (ChosenFireZone)
@@ -105,6 +114,7 @@ public class Sector1BossScript : MonoBehaviour
                         
             }
 
+            // Change attack speed
             if (Health >= 900)
             {
                 DeployTimer = 4;
@@ -217,6 +227,7 @@ public class Sector1BossScript : MonoBehaviour
         gameObject.GetComponent<Rigidbody2D>().gravityScale = 3;
         gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
         gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+        Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = false;
 
         if (transform.position.y <= 1.5)
         {
@@ -230,11 +241,72 @@ public class Sector1BossScript : MonoBehaviour
 #region Phase2
             case 2: // Phase 2
 
+                // Change attack speed
+                if (Health >= 550)
+                {
+                    float InitialJumpDelay = 1000;
+                }
+                else if (Health >= 400)
+                {
+                    float InitialJumpDelay = 600;
+                }
+                else if (Health >= 300)
+                {
+                    float InitialJumpDelay = 300;
+                }
+                else if (Health >= 200)
+                {
+                    float InitialJumpDelay = 100;
+                }
+
+                if (Health <= 0)
+                {
+                    Health = 0;
+                    Phase = 2.5f;
+                }
+
+                if (gameObject.GetComponent<Rigidbody2D>().linearVelocity.y < 0 && transform.position.y <= 1.1)
+                {
+                    if (canShockwaveDamage)
+                    {
+                        // Damage Boss
+                        gameObject.GetComponent<GenericDestructable>().Health -= ShockwaveDamage;
+
+                        // Shake Camera
+                        Camera.GetComponent<CameraMovement>().shakeCamera(0.8f, 0.5f);
+                        canJump = true;
+                        if (Player.transform.Find("GroundCheck").gameObject.GetComponent<GroundCheck>().isGrounded == true)
+                        {
+                            // Shockwave Damage
+                            GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= ShockwaveDamage;
+                        }
+                    }
+                    canShockwaveDamage = false;
+                }
+
+                if (canJump)
+                {
+                    Jump();
+                }
+
                 break;
+
+#region Death Animation
+    case 2.5f:
+        Phase = 3;
+        break;
+#endregion
+
+#region Death
+    case 3:
+        break;
+#endregion
+            
             default:
                 break;
         }
-#endregion   
+#endregion
+
     }
 
     async Task Deploy()
@@ -257,7 +329,29 @@ public class Sector1BossScript : MonoBehaviour
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = true;
 
         Switchblade.transform.parent = null;
-        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 20);
+    }
+
+    async Task Jump()
+    {
+        canJump = false;
+        canShockwaveDamage = true;
+
+        await Task.Delay(1000);
+
+        // Jump Towards Player
+        if (Player.transform.position.x - transform.position.x > 0) // Jump right
+        {
+            GetComponent<Rigidbody2D>().linearVelocity = new Vector2(15, 30);
+        }
+        else if (Player.transform.position.x - transform.position.x < 0) // Jump left
+        {
+            GetComponent<Rigidbody2D>().linearVelocity = new Vector2(-15, 30);
+        }
+        else // Jump straight up
+        {
+            GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 30);
+        }
+        
     }
 
     void Shoot()
