@@ -2175,22 +2175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e60382b62efcba049bd3aea1f4d428a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestEnemyAITurret
-  DistanceFromPlayer: 0
-  canFire: 1
-  currentlyReloading: 0
-  targetingPlayer: 0
-  inFiringCycle: 0
-  WeaponCurrentMagazineAmmount: 0
-  angle: 0
-  Health: 100
-  PlayerDetectionRange: 25
-  WeaponDamage: 15
-  WeaponFireRate: 250
-  WeaponRandomSpread: 5
-  WeaponRange: 20
-  WeaponProjectileSpeed: 30
-  WeaponMagazineSize: 20
-  WeaponReloadTime: 5000
 --- !u!212 &750797799
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3448,38 +3432,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28443fe19be7e334cb81626f38d870b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomEnemyAI
-  target: {fileID: 0}
-  nextWaypointDistance: 5
-  SuitablePositions: []
-  AllPositions: []
-  DistanceFromPlayer: 0
-  PatrolPositions: []
-  LastKnownPlayerLocation: {fileID: 0}
-  canJump: 1
-  canMove: 1
-  canPursue: 1
-  canFire: 0
-  currentlyReloading: 0
-  currentlyPatrolling: 0
-  currentlyMovingToNextPatrolTarget: 0
-  DesiredDistance: 0
-  MinumumDistance: 5
-  targetingPlayer: 0
-  Speed: 0.7
-  JumpHeight: 1
-  Health: 100
-  PatrolDistance: 10
-  PatrolStallTime: 2000
-  PlayerDetectionRange: 25
-  WeaponType: RANGED
-  WeaponDamage: 15
-  WeaponFireRate: 250
-  WeaponRandomSpread: 5
-  WeaponRange: 20
-  WeaponProjectileSpeed: 30
-  WeaponMagazineSize: 20
-  WeaponReloadTime: 5000
-  WeaponCurrentMagazineAmmount: 0
 --- !u!1 &1193086071
 GameObject:
   m_ObjectHideFlags: 0

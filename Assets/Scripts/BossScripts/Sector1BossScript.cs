@@ -19,6 +19,7 @@ public class Sector1BossScript : MonoBehaviour
     GameObject ChosenFireZone;
     GameObject Spotlight;
     GameObject Camera;
+    GameObject BossProjectile;
 
     public float Phase = 0.5f;
     public float Health = 1000;
@@ -31,9 +32,9 @@ public class Sector1BossScript : MonoBehaviour
     public List<GameObject> DeployLocations;
     public List<GameObject> FireZones;
 
-    public int Choice; // 0 == deploy, 1 == shoot
-    float InititialChoiceCountdown = 5f; // sec
-    float ChoiceCountdown; // sec
+    public int Choice; //1 == shoot >1 == deploy
+    public float InitialChoiceCountdown = 2f; // sec
+    public float ChoiceCountdown; // sec
     float InitialBulletInterval = 0.01f;
     float BulletInterval = 0.01f;
     float InitialMoveCountdown = 2; //sec
@@ -53,10 +54,10 @@ public class Sector1BossScript : MonoBehaviour
     float MovementSpeed = 5f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         Camera = GameObject.FindGameObjectWithTag("MainCamera");
-
+        BossProjectile = GameObject.Find("EnemyProjectile");
         Player = GameObject.FindWithTag("Player");
         Spotlight = transform.Find("SpotlightAxis").gameObject;
         Barrel = transform.Find("Barrel").gameObject;
@@ -73,7 +74,7 @@ public class Sector1BossScript : MonoBehaviour
 
         FireZones = GameObject.FindGameObjectsWithTag("1").ToList();
 
-        ChoiceCountdown = InititialChoiceCountdown;
+        ChoiceCountdown = InitialChoiceCountdown;
         
     }
 
@@ -85,7 +86,7 @@ public class Sector1BossScript : MonoBehaviour
 
         GameObject.Find("HealthIndicator").transform.localScale = new Vector3(Health / 1000 * 30, 1, 1);
 
-        if (Phase == 1 && Choice == 0)
+        if (Phase == 1 && Choice > 1)
         {
             BackgroundMove();
         }
@@ -94,7 +95,7 @@ public class Sector1BossScript : MonoBehaviour
         {
 #region Phase1
 
-            case 1: // Phase 1
+        case 1: // Phase 1
 
             if (Health <= 500)
             {
@@ -118,22 +119,22 @@ public class Sector1BossScript : MonoBehaviour
             if (Health >= 900)
             {
                 DeployTimer = 4;
-                InititialChoiceCountdown = 5;
+                InitialChoiceCountdown = 3.5f;
             }
             else if (Health >= 800)
             {
                 DeployTimer = 2;
-                InititialChoiceCountdown = 4;
+                InitialChoiceCountdown = 3;
             }
             else if (Health >= 700)
             {
                 DeployTimer = 1;
-                InititialChoiceCountdown = 2.5f;
+                InitialChoiceCountdown = 2.5f;
             }
             else if (Health >= 600)
             {
                 DeployTimer = 0.5f;
-                InititialChoiceCountdown = 1;
+                InitialChoiceCountdown = 1;
             }
 
             
@@ -141,8 +142,8 @@ public class Sector1BossScript : MonoBehaviour
             ChoiceCountdown -= Time.deltaTime;
             if (ChoiceCountdown <= 0)
             {
-                ChoiceCountdown = InititialChoiceCountdown;
-                Choice = UnityEngine.Random.Range(0, 2);
+                ChoiceCountdown = InitialChoiceCountdown;
+                Choice = UnityEngine.Random.Range(1, 5);
 
                 if (Choice == 1) // Find random firing zone
                 {
@@ -180,13 +181,11 @@ public class Sector1BossScript : MonoBehaviour
             }
             else
             {
-                MoveCountdown = InitialMoveCountdown   ;
+                MoveCountdown = InitialMoveCountdown;
             }
 
-            switch (Choice)
+            if (Choice > 1) // Deploy
             {
-                case 0: // deploy
-
                 CurrentDeployTimer -= Time.deltaTime;
                 if (CurrentDeployTimer <= 0)
                 {
@@ -199,33 +198,28 @@ public class Sector1BossScript : MonoBehaviour
                     canDeploy = false;
                     Deploy();
                 }
-                break;
-
-                case 1:
-
+            }
+            else // Shoot
+            {
                 transform.position = Vector3.MoveTowards(transform.position, new Vector3(-3.5f, 6, transform.position.z), MovementSpeed * Time.deltaTime);
 
                 BulletInterval -= Time.deltaTime;
                 if (BulletInterval <= 0)
-                    {
-                        BulletInterval = InitialBulletInterval;
-                        Shoot();            
-                    }
+                {
+                    BulletInterval = InitialBulletInterval;
+                    Shoot();            
+                }
 
-                break;
-
-                default:
-                break;               
             }
-                break;
-
+        break;
 #endregion
 
 #region Cutscene between 1 - 2
 
-    case 1.5f: // Cutscene between plases 1 & 2
+        case 1.5f: // Cutscene between plases 1 & 2
         gameObject.GetComponent<Rigidbody2D>().gravityScale = 3;
         gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
+
         gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
         Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = false;
 
@@ -356,9 +350,11 @@ public class Sector1BossScript : MonoBehaviour
 
     void Shoot()
     {
+        if (ChosenFireZone)
+        {
         // Create Projectile
         GameObject BulletInstance;
-        BulletInstance = Instantiate(GameObject.Find("EnemyProjectile"), Barrel.transform.position, Quaternion.LookRotation(transform.position - ChosenFireZone.transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+        BulletInstance = Instantiate(BossProjectile, Barrel.transform.position, Quaternion.LookRotation(transform.position - ChosenFireZone.transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
         //BulletInstance.transform.parent = transform;
 
         // Variables
@@ -368,7 +364,7 @@ public class Sector1BossScript : MonoBehaviour
         // Send it on it's way
         BulletInstance.GetComponent<Rigidbody2D>().linearVelocity = BulletInstance.transform.forward * -1 * WeaponProjectileSpeed;
         BulletInstance.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Vector2.SignedAngle(Vector2.right, BulletInstance.transform.forward) - 90));
-                
+        }       
     }
 
     void BackgroundMove()

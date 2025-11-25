@@ -1409,6 +1409,8 @@ MonoBehaviour:
   DeployLocations: []
   FireZones: []
   Choice: 0
+  InitialChoiceCountdown: 2
+  ChoiceCountdown: 0
 --- !u!114 &982637502
 MonoBehaviour:
   m_ObjectHideFlags: 0
