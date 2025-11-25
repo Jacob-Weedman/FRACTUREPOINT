@@ -20,10 +20,10 @@ public class playerController : MonoBehaviour
     private KeyCode hop = KeyCode.W, crouch = KeyCode.S, left = KeyCode.A, right = KeyCode.D, forward;
     #endregion
     #region Timers
-    private float coyoteTimeAmount = .1f, airjumpTurnaroundWindow = .1f, jumpBufferAmount = .2f, wallStallAmount = .15f, dashWindowAmount = .25f, attackTimerAmount = .3f, scrollSpeed = .15f;
-    private float CoyoteTimer, BufferTimer, airjumpTurnTimer, wallStallTimer, dashCooldownTimer, dashLeftTimer, dashRightTimer, attackTimer, scrollTimer;
+    private float coyoteTimeAmount = .1f, airjumpTurnaroundWindow = .1f, jumpBufferAmount = .2f, clickBufferAmount = .1f, wallStallAmount = .15f, dashWindowAmount = .25f, attackTimerAmount = .3f, scrollSpeed = .15f;
+    private float CoyoteTimer, jumpBufferTimer, clickBufferTimer, airjumpTurnTimer, wallStallTimer, dashCooldownTimer, dashLeftTimer, dashRightTimer, attackTimer, scrollTimer, reloadTimer;
     private float tempMaxSpeedTimer;
-    [SerializeField] private float dashCooldownAmount = 3f;
+    [SerializeField] private float dashCooldownAmount = 1f;
     #endregion
     #region Player Booleans
     private bool allowedToWalk = true, allowedToJump = true, allowedToWallSlide = true, allowedToDash = true, speedClampingActive = true, canScroll = true;
@@ -160,8 +160,13 @@ public class playerController : MonoBehaviour
         if (CoyoteTimer > 0) CoyoteTimer -= Time.deltaTime;
         #endregion
         #region Jump Buffering
-        if (Input.GetKeyDown(hop)) BufferTimer = jumpBufferAmount;
-        if (BufferTimer > 0) BufferTimer -= Time.deltaTime;
+        if (Input.GetKeyDown(hop)) jumpBufferTimer = jumpBufferAmount;
+        if (jumpBufferTimer > 0) jumpBufferTimer -= Time.deltaTime;
+        #endregion
+        #region Click Buffer & Reload Timers
+        if (Input.GetMouseButtonDown(0)) clickBufferTimer = clickBufferAmount;
+        if (clickBufferTimer > 0) clickBufferTimer -= Time.deltaTime;
+        if (reloadTimer > 0) reloadTimer -= Time.deltaTime;
         #endregion
         #region Window To Change Directions After Air Jump
         if (airjumpTurnTimer > 0) airjumpTurnTimer -= Time.deltaTime;
@@ -257,10 +262,10 @@ public class playerController : MonoBehaviour
         if (allowedToJump)
         {
             #region Normal Jumps
-            if (CoyoteTimer > 0 && BufferTimer > 0)
+            if (CoyoteTimer > 0 && jumpBufferTimer > 0)
             {
                 body.linearVelocity = new Vector2(body.linearVelocity.x, tempJumpPower);
-                BufferTimer = 0;
+                jumpBufferTimer = 0;
                 CoyoteTimer = 0;
             }
             #endregion
@@ -271,7 +276,7 @@ public class playerController : MonoBehaviour
                 body.linearVelocity = new Vector2(body.linearVelocity.x, tempJumpPower * .8f);
                 tempExtraJumps--;
 
-                BufferTimer = 0;
+                jumpBufferTimer = 0;
 
                 airjumpTurnTimer = airjumpTurnaroundWindow;
             }
@@ -302,11 +307,11 @@ public class playerController : MonoBehaviour
             #endregion
 
             #region Wall Jumps
-            if (isWallSlide && BufferTimer > 0)
+            if (isWallSlide && jumpBufferTimer > 0)
             {
                 body.linearVelocity = new Vector2(tempMoveSpeed * -velocityDirection, .74f * tempJumpPower);
                 body.linearVelocity = new Vector2(Mathf.Clamp(body.linearVelocity.x, -tempMaxSpeed, tempMaxSpeed), body.linearVelocity.y);
-                BufferTimer = 0;
+                jumpBufferTimer = 0;
             }
             #endregion
         }
@@ -317,7 +322,7 @@ public class playerController : MonoBehaviour
             if (dashingLeft)
             {
                 tempMaxSpeed = tempDashPower;
-                tempMaxSpeedTimer = .03f;
+                tempMaxSpeedTimer = .06f;
                 body.linearVelocity = new Vector2(-tempDashPower, body.linearVelocity.y);
 
                 dashingLeft = false;
@@ -330,7 +335,7 @@ public class playerController : MonoBehaviour
             if (dashingRight)
             {
                 tempMaxSpeed = tempDashPower;
-                tempMaxSpeedTimer = .03f;
+                tempMaxSpeedTimer = .06f;
                 body.linearVelocity = new Vector2(tempDashPower, 0);
 
                 dashingRight = false;
@@ -356,12 +361,14 @@ public class playerController : MonoBehaviour
 
             equippedIndex = (nextIndex % playerInventory.Count + playerInventory.Count) % playerInventory.Count;
             equippedItem = playerInventory[equippedIndex];
+
+            reloadTimer = 0;
         }
         #endregion
 
         #region Using Weapons
 
-        if (Input.GetMouseButtonDown(0))
+        if (clickBufferTimer > 0 && reloadTimer <= 0)
         {
 
             switch (equippedItem)
@@ -423,7 +430,8 @@ public class playerController : MonoBehaviour
                     break;
 
                 case "Gun":
-                    GetComponent<ShootScript>().Shoot("Bullet", 1000f, 10f, 25f, .25f);
+                    GetComponent<ShootScript>().Shoot("Bullet", 2000f, 15f, 25f, .25f, 3, .05f);
+                    reloadTimer = .5f;
                     break;
                     #endregion
             }

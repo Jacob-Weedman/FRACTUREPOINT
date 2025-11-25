@@ -101,7 +101,7 @@ public class Sector1BossScript : MonoBehaviour
             {
                 Health = 500;
                 Phase = 1.5f;
-                gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 80;
+                gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 60;
             }
 
             if (ChosenFireZone)
@@ -221,8 +221,18 @@ public class Sector1BossScript : MonoBehaviour
         gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
 
         gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
-        Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = false;
 
+        if (transform.Find("SpotlightAxis")){
+            Spotlight.transform.Find("Spotlight").gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            Destroy(transform.Find("SpotlightAxis").gameObject);
+        }
+
+        foreach (Transform child in transform)
+        {
+            child.gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+        }
+
+        
         if (transform.position.y <= 1.5)
         {
             Phase = 2;
@@ -316,11 +326,13 @@ public class Sector1BossScript : MonoBehaviour
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = false;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = false;
 
-        await Task.Delay(1000);
+        await Task.Delay((int)InitialChoiceCountdown * 500);
 
         Switchblade.GetComponent<Seeker>().enabled = true;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = true;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = true;
+
+        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 20;
 
         Switchblade.transform.parent = null;
     }

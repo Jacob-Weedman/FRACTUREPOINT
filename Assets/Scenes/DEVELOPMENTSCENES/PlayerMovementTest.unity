@@ -1914,9 +1914,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Gun: {fileID: 867213672}
   ShootPoint: {fileID: 1700039168}
-  YesTestBulletSpeed: 0
+  BulletSpeed: 0
   BulletRange: 0
   BulletDamage: 0
+  BulletUnloadSpeed: 0
+  BulletMagSize: 0
+  BulletReloadSpeed: 0
+  BulletBurstAmount: 0
 --- !u!1 &1175765754
 GameObject:
   m_ObjectHideFlags: 0

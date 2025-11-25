@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 637e1d52df115c943868a214fc80141d
+guid: c836ac1c05d21bd41a2a03a05e0ffd6f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5028711653713405846
-    second: SloaneBust_0
+      213: 5619087098106857822
+    second: HealthBarInsideRight_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SloaneBust_0
+      name: HealthBarInsideRight_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 65
+        x: 112
+        y: 3
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 69764751b9299c540800000000000000
-      internalID: 5028711653713405846
+      spriteID: e59c3acc1f10bfd40800000000000000
+      internalID: 5619087098106857822
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SloaneBust_0: 5028711653713405846
+      HealthBarInsideRight_0: 5619087098106857822
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
