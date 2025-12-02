@@ -46,12 +46,12 @@ public class Sector1BossScript : MonoBehaviour
 
     bool canShockwaveDamage = true;
     int ShockwaveDamage = 10;
-    int WeaponDamage = 3;
+    int WeaponDamage = 1;
     int WeaponRange = 50;
     int WeaponProjectileSpeed = 20;
-    int WeaponRandomSpread = 7;
+    int WeaponRandomSpread = 8;
 
-    float MovementSpeed = 5f;
+    float MovementSpeed = 2.5f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -63,6 +63,8 @@ public class Sector1BossScript : MonoBehaviour
         Barrel = transform.Find("Barrel").gameObject;
         Target = GameObject.Find("BossTarget");
         Target.transform.position = transform.position;
+
+        transform.Find("DamagerPiece").gameObject.GetComponent<GenericDamager>().LockDamage = true;
 
         foreach (Transform spawner in transform)
         {
@@ -219,6 +221,7 @@ public class Sector1BossScript : MonoBehaviour
         case 1.5f: // Cutscene between plases 1 & 2
         gameObject.GetComponent<Rigidbody2D>().gravityScale = 3;
         gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
+        transform.Find("DamagerPiece").gameObject.GetComponent<GenericDamager>().LockDamage = false;
 
         gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
 
@@ -229,7 +232,10 @@ public class Sector1BossScript : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            child.gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+            if (child.name != "DamagerPiece")
+            {
+                child.gameObject.layer = LayerMask.NameToLayer("FlyingEnemies");
+            }
         }
 
         
@@ -260,7 +266,7 @@ public class Sector1BossScript : MonoBehaviour
                 }
                 else if (Health >= 200)
                 {
-                    float InitialJumpDelay = 100;
+                    float InitialJumpDelay = 200;
                 }
 
                 if (Health <= 0)

@@ -309,7 +309,7 @@ public class MasterEnemyAI : MonoBehaviour
         //}
         #endregion
 
-        #region MISC PATHFINDING (DONT CHANGE)
+        #region MISC PATHFINDING
         if (path == null)
             return;
 
@@ -324,6 +324,7 @@ public class MasterEnemyAI : MonoBehaviour
         {
             reachedEndOfPath = false;
         }
+        
         #endregion
 
         #region WEAPONATTACK

@@ -50,7 +50,7 @@ public class bulletScript : MonoBehaviour
            
         }
 
-        if (collision.CompareTag("Ground")) Destroy(gameObject);
+        if (collision.gameObject.layer == 6) Destroy(gameObject);
 
 
 
