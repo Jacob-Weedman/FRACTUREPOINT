@@ -17,22 +17,24 @@ public class playerController : MonoBehaviour
     public GameObject gun;
     #endregion 
     #region Keybinds
-    private KeyCode hop = KeyCode.W, crouch = KeyCode.S, left = KeyCode.A, right = KeyCode.D, forward;
+    private KeyCode hop, up, down, left, right, dash, lightAttack, heavyAttack, ultimateAttack, forward;
     #endregion
     #region Timers
-    private float coyoteTimeAmount = .1f, airjumpTurnaroundWindow = .1f, jumpBufferAmount = .2f, clickBufferAmount = .1f, wallStallAmount = .15f, dashWindowAmount = .25f, attackTimerAmount = .3f, scrollSpeed = .15f;
-    private float CoyoteTimer, jumpBufferTimer, clickBufferTimer, airjumpTurnTimer, wallStallTimer, dashCooldownTimer, dashLeftTimer, dashRightTimer, attackTimer, scrollTimer, reloadTimer;
-    private float tempMaxSpeedTimer;
-    [SerializeField] private float dashCooldownAmount = 1f;
+    private float coyoteTimeAmount = .1f, airjumpTurnaroundWindow = .1f, jumpBufferAmount = .2f, clickBufferAmount = .1f, wallStallAmount = .15f, dashWindowAmount = .25f, waveDashWindow = .1f, scrollSpeed = .15f;
+    private float CoyoteTimer, jumpBufferTimer, clickBufferTimer, airjumpTurnTimer, wallStallTimer, dashCooldownTimer, dashLeftTimer, dashRightTimer, waveDashTimer, hitboxTimer, scrollTimer, reloadTimer;
+    private float tempMaxSpeedTimer, dashCooldownAmount = 1f;
+    private float d;
     #endregion
     #region Player Booleans
     private bool allowedToWalk = true, allowedToJump = true, allowedToWallSlide = true, allowedToDash = true, speedClampingActive = true, canScroll = true;
-    private bool isGrounded, isWallSlide, canJumpAgain, isFacingRight = true, canDash, dashingLeft, dashingRight, alreadyAirDashed;
+    private bool isGrounded, isWallSlide, canJumpAgain, isFacingRight = true, canDash, dashingLeft, dashingRight, alreadyAirDashed, waveDashing = false;
+    [SerializeField] private bool canDie = true;
     #endregion
     #region Player Floats
-    private float defaultMaxSpeed = 10f, defaultMoveSpeed = 10f, defaultJumpPower = 18f, defaultDashPower = 100f, defaultTurnResponsiveness = 4f, defaultExtraJumps = 1f; //Permanent Upgrades Will Affect These
-    private float tempMaxSpeed = 10f, tempMoveSpeed = 10f, tempJumpPower = 18f, tempDashPower = 100f, tempTurnResponsiveness = 4f, tempExtraJumps; //Temporary Upgrades/Debuffs Will Affect These
+    private float defaultMaxSpeed = 10f, defaultMoveSpeed = 10f, defaultJumpPower = 18f, defaultDashPower = 40f, defaultTurnResponsiveness = 4f, defaultDashSpeed = 40f, defaultExtraJumps = 1f; //Permanent Upgrades Will Affect These
+    private float tempMaxSpeed = 10f, tempMoveSpeed = 10f, tempJumpPower = 18f, tempDashPower = 40f, tempTurnResponsiveness = 4f, tempExtraJumps; //Temporary Upgrades/Debuffs Will Affect These
     private float velocityDirection = 1, turnaround;
+    [SerializeField] private float playerHealth;
     #endregion
     #region Characters/Inventory Management
     private List<String> playerInventory;
@@ -50,7 +52,6 @@ public class playerController : MonoBehaviour
         #region Character Movesets
         switch (SelectedPlayer)
         {
-
             case "Cade":
                 playerInventory = new List<String> { "StaffSwing", "Fireball", "DragonBreath" };
                 break;
@@ -71,22 +72,56 @@ public class playerController : MonoBehaviour
                 playerInventory = new List<String> { "Melee", "Gun" };
                 break;
         }
+        equippedItem = playerInventory[equippedIndex];
         #endregion
+
+        #region Character Controls
+        
+        switch (SelectedPlayer)
+        {
+            case "Cade":
+            case "Sloane":
+            default:
+                hop = KeyCode.W; 
+                down = KeyCode.S; 
+                left = KeyCode.A; 
+                right = KeyCode.D;
+                break;
+
+            case "Leo":
+            case "Gamma":
+                hop = KeyCode.Space;
+                up = KeyCode.UpArrow;
+                down = KeyCode.DownArrow; 
+                left = KeyCode.LeftArrow; 
+                right = KeyCode.RightArrow;
+                lightAttack = KeyCode.X;
+                heavyAttack = KeyCode.C;
+                break;
+        }
+
+
+        
+        
+        
+        
+        #endregion
+
     }
 
     void Update()
     {
-
-        TimerHandler();
-
         StateCheck();
+
+        if (canDie && playerHealth >= 0) { 
+        TimerHandler();
 
         Movement();
 
         CheckFaceDirection();
 
-        Combat();
-
+        RangedCombat();
+        }
     }
 
 
@@ -151,10 +186,23 @@ public class playerController : MonoBehaviour
         #region Reload Dash
         if (isGrounded) alreadyAirDashed = false;
         #endregion
+
+        #region Health Update
+        playerHealth = GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth;
+        #endregion
+
+        #region Most Recent Direction Input
+        
+        
+
+        
+        #endregion
     }
 
     void TimerHandler()
     {
+        #region Physics Timers
+
         #region Coyote Time
         if (isGrounded && !(body.linearVelocity.y > 0)) CoyoteTimer = coyoteTimeAmount;
         if (CoyoteTimer > 0) CoyoteTimer -= Time.deltaTime;
@@ -163,17 +211,37 @@ public class playerController : MonoBehaviour
         if (Input.GetKeyDown(hop)) jumpBufferTimer = jumpBufferAmount;
         if (jumpBufferTimer > 0) jumpBufferTimer -= Time.deltaTime;
         #endregion
-        #region Click Buffer & Reload Timers
-        if (Input.GetMouseButtonDown(0)) clickBufferTimer = clickBufferAmount;
-        if (clickBufferTimer > 0) clickBufferTimer -= Time.deltaTime;
-        if (reloadTimer > 0) reloadTimer -= Time.deltaTime;
-        #endregion
         #region Window To Change Directions After Air Jump
         if (airjumpTurnTimer > 0) airjumpTurnTimer -= Time.deltaTime;
         #endregion
         #region Wall Stall
         if (!isWallSlide || body.linearVelocity.y >= 0) wallStallTimer = wallStallAmount;
         if (wallStallTimer > 0) wallStallTimer -= Time.deltaTime;
+        #endregion
+        #region WaveDashing
+        if (isGrounded && waveDashing) waveDashTimer -= Time.deltaTime;
+        if (waveDashTimer > 0) waveDashing = true;
+        else waveDashing = false;
+        #endregion
+        #region Resetting Speed Clamping
+
+        if (tempMaxSpeedTimer <= 0 && waveDashing) /*tempMaxSpeed = defaultDashSpeed / 2*/;
+        else if (tempMaxSpeedTimer <= 0) tempMaxSpeed = defaultMaxSpeed;
+
+        tempMaxSpeedTimer -= Time.deltaTime;
+
+        body.linearVelocity = new Vector2(Mathf.Clamp(body.linearVelocity.x, -tempMaxSpeed, tempMaxSpeed), body.linearVelocity.y);
+
+        #endregion
+
+        #endregion
+
+        #region Controller Timers
+
+        #region Click Buffer & Reload Timers
+        if (Input.GetMouseButtonDown(0)) clickBufferTimer = clickBufferAmount;
+        if (clickBufferTimer > 0) clickBufferTimer -= Time.deltaTime;
+        if (reloadTimer > 0) reloadTimer -= Time.deltaTime;
         #endregion
         #region Dash Cooldown      
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
@@ -200,8 +268,8 @@ public class playerController : MonoBehaviour
         if (dashRightTimer > 0) dashRightTimer -= Time.deltaTime;
         #endregion
         #region Attack Window
-        if (attackTimer >= 0) attackTimer -= Time.deltaTime;
-        if (attackTimer < 0) attackHitbox.SetActive(false);
+        if (hitboxTimer >= 0) hitboxTimer -= Time.deltaTime;
+        if (hitboxTimer < 0) attackHitbox.SetActive(false);
         #endregion
         #region Inventory Scrolling
         if (scrollTimer > 0) scrollTimer -= Time.deltaTime;
@@ -209,14 +277,9 @@ public class playerController : MonoBehaviour
         else canScroll = true;
         #endregion
 
-        #region Resetting Speed Clamping
-
-        if (tempMaxSpeedTimer <= 0) tempMaxSpeed = defaultMaxSpeed;
-        tempMaxSpeedTimer -= Time.deltaTime;
-
-        body.linearVelocity = new Vector2(Mathf.Clamp(body.linearVelocity.x, -tempMaxSpeed, tempMaxSpeed), body.linearVelocity.y);
-
         #endregion
+
+        
     }
 
     void Movement()
@@ -267,6 +330,7 @@ public class playerController : MonoBehaviour
                 body.linearVelocity = new Vector2(body.linearVelocity.x, tempJumpPower);
                 jumpBufferTimer = 0;
                 CoyoteTimer = 0;
+                if(waveDashTimer > 0) waveDashTimer = waveDashWindow;
             }
             #endregion
 
@@ -322,12 +386,14 @@ public class playerController : MonoBehaviour
             if (dashingLeft)
             {
                 tempMaxSpeed = tempDashPower;
-                tempMaxSpeedTimer = .06f;
+                tempMaxSpeedTimer = .2f;
                 body.linearVelocity = new Vector2(-tempDashPower, body.linearVelocity.y);
 
                 dashingLeft = false;
                 dashCooldownTimer = dashCooldownAmount;
                 alreadyAirDashed = true;
+
+                waveDashTimer = waveDashWindow;
             }
             #endregion
 
@@ -335,19 +401,21 @@ public class playerController : MonoBehaviour
             if (dashingRight)
             {
                 tempMaxSpeed = tempDashPower;
-                tempMaxSpeedTimer = .06f;
+                tempMaxSpeedTimer = .2f;
                 body.linearVelocity = new Vector2(tempDashPower, 0);
 
                 dashingRight = false;
                 dashCooldownTimer = dashCooldownAmount;
                 alreadyAirDashed = true;
+
+                waveDashTimer = waveDashWindow;
             }
             #endregion
         }
 
     }
 
-    public void Combat()
+    public void RangedCombat()
     {
 
         #region Weapon Wheel
@@ -366,7 +434,7 @@ public class playerController : MonoBehaviour
         }
         #endregion
 
-        #region Using Weapons
+        #region Shooting
 
         if (clickBufferTimer > 0 && reloadTimer <= 0)
         {
@@ -425,7 +493,8 @@ public class playerController : MonoBehaviour
                 #region Test Weapons
                 case "Melee":
                     attackHitbox.SetActive(true);
-                    attackTimer = attackTimerAmount;
+                    hitboxTimer = .2f;
+                    reloadTimer = .3f;
                     Debug.Log("swing");
                     break;
 
@@ -440,9 +509,21 @@ public class playerController : MonoBehaviour
         }
         #endregion
 
-
     }
 
+    public void DirectionalCombat()
+    {
+
+        if (Input.GetKeyDown(lightAttack) && reloadTimer <= 0)
+        {
+            //switch (inputDirection) { }
+
+
+        }
+
+
+
+    }
 
 
 }

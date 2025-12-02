@@ -4,20 +4,25 @@ public class BasicMelee : MonoBehaviour
 {
 
     public float damage = 15;
-    void OnTriggerEnter2D(Collider2D collision) 
+    void OnTriggerEnter2D(Collider2D collision)
     {
 
         if (collision.CompareTag("Attackable"))
         {
-            collision.GetComponent<MasterEnemyAI>().Health -= damage;
-            Debug.Log("hit an enemy");
+            if (collision.GetComponent<MasterEnemyAI>())
+            {
+                collision.GetComponent<MasterEnemyAI>().Health -= damage;
+            }
 
+            if (collision.GetComponent<GenericDestructable>())
+            {
+                if (collision.GetComponent<GenericDestructable>().AttackableByPlayer)
+                {
+                    collision.GetComponent<GenericDestructable>().Health -= damage;
+
+                }
+            }
         }
-    
     }
-
-
-
-
-
+    
 }
