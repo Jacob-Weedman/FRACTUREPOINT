@@ -357,7 +357,6 @@ GameObject:
   - component: {fileID: 1775076320}
   - component: {fileID: 1775076319}
   - component: {fileID: 1775076318}
-  - component: {fileID: 1775076317}
   - component: {fileID: 1775076321}
   m_Layer: 0
   m_Name: MainMenu2
@@ -366,18 +365,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1775076317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1775076316}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0500e3999bf38bc43b7303241847bda1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &1775076318
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -509,6 +496,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5436d63c5bce7ce4ca0948f62f6492c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  spriteRenderer: {fileID: 1775076319}
+  targetAlpha: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
