@@ -42,8 +42,8 @@ public class MasterEnemyAI : MonoBehaviour
     #endregion
 
     #region CONDITIONS/GENERAL INFORMATION
-    bool targetingPlayer = false;
-    bool inFiringCycle = false;
+    public bool targetingPlayer = false;
+    public bool inFiringCycle = false;
     bool currentlyReloading = false;
     bool currentlyPatrolling;
     bool canJump = true;
@@ -53,7 +53,7 @@ public class MasterEnemyAI : MonoBehaviour
     bool canDash = true;
     bool currentlyMovingToNextPatrolTarget = false;
     float DesiredDistance;
-    int WeaponCurrentMagazineAmmount;
+    public int WeaponCurrentMagazineAmmount;
     public int NumberOfHitsPerMag = 0;
     bool canTeleport = true;
     float angle;
@@ -145,7 +145,15 @@ public class MasterEnemyAI : MonoBehaviour
             }
 
             GetComponent<Rigidbody2D>().gravityScale = 1.5f;
-            target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
+
+            if (PatrolPositions.Count() > 0) // Catches error when the game object starts outside of the game area
+            {
+                target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
+            }
+            else
+            {
+                target = null;
+            }
         }
 
         if (EnemyType == "AIR") // Configure settings for Air enemies
@@ -204,7 +212,7 @@ public class MasterEnemyAI : MonoBehaviour
     // Pathfiniding Timeout
     void PathfindingTimeout()
     {
-        if (Vector2.Distance(transform.position, target.transform.position) > 0.5 || LastKnownPlayerLocation == null)
+        if (target != null && Vector2.Distance(transform.position, target.transform.position) > 0.5 || LastKnownPlayerLocation == null)
         {
             //target = gameObject;
             MoveNextPatrol();

@@ -31,10 +31,11 @@ public class WorldManager : MonoBehaviour
 
     void ChangeLevel()
     {
-        if (levelChosen == "test")
+        if (levelChosen == "test") // Remove later when levels are put in place
         {
             //SceneManager.LoadScene("WorkingPathfindingTest");
-            SceneManager.LoadScene("Sector1Boss");
+            //SceneManager.LoadScene("Sector1Boss");
+            SceneManager.LoadScene("BossFightSelector");
         }
         else
         {

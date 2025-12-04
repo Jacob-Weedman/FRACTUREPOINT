@@ -610,7 +610,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Go to enemy test
+  m_Text: Boss Fight Selection
 --- !u!222 &760058714
 CanvasRenderer:
   m_ObjectHideFlags: 0

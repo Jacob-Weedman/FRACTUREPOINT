@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/DEVELOPMENTSCENES/PlayerMovementTest.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
-    path: Assets/Scenes/LevelSelection.unity
+    path: Assets/Scenes/MenuScenes/LevelSelection.unity
     guid: 6b69322d8fca92142b939373718f9b77
   - enabled: 1
     path: Assets/Scenes/DEVELOPMENTSCENES/WorkingPathfindingTest.unity
@@ -18,8 +18,17 @@ EditorBuildSettings:
     path: Assets/Scenes/Sector1/Sector1Level1.unity
     guid: f424c55498705804a95e148c65ec6fc7
   - enabled: 1
+    path: Assets/Scenes/MenuScenes/BossFightSelector.unity
+    guid: db08ceb42ed87eb44a7700cb6611a9be
+  - enabled: 1
     path: Assets/Scenes/Sector1/Sector1Boss.unity
     guid: beca399c658519546b48d9331628e06a
+  - enabled: 1
+    path: Assets/Scenes/Sector6/Sector6Boss.unity
+    guid: ea4e451674ccda144b191b4db84f9451
+  - enabled: 1
+    path: Assets/Scenes/Sector1/Sector1Level2.unity
+    guid: 5bfc2b7fa414b974fb75dd99d6894212
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

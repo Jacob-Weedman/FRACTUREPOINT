@@ -18,12 +18,12 @@ public class playerController : MonoBehaviour
     #endregion 
     #region Keybinds
     private KeyCode hop, up, down, left, right, dash, lightAttack, heavyAttack, ultimateAttack, forward;
+    private String currentDirection;
     #endregion
     #region Timers
     private float coyoteTimeAmount = .1f, airjumpTurnaroundWindow = .1f, jumpBufferAmount = .2f, clickBufferAmount = .1f, wallStallAmount = .15f, dashWindowAmount = .25f, waveDashWindow = .1f, scrollSpeed = .15f;
     private float CoyoteTimer, jumpBufferTimer, clickBufferTimer, airjumpTurnTimer, wallStallTimer, dashCooldownTimer, dashLeftTimer, dashRightTimer, waveDashTimer, hitboxTimer, scrollTimer, reloadTimer;
-    private float tempMaxSpeedTimer, dashCooldownAmount = 1f;
-    private float d;
+    private float tempMaxSpeedTimer, dashCooldownAmount = 1;
     #endregion
     #region Player Booleans
     private bool allowedToWalk = true, allowedToJump = true, allowedToWallSlide = true, allowedToDash = true, speedClampingActive = true, canScroll = true;
@@ -31,8 +31,8 @@ public class playerController : MonoBehaviour
     [SerializeField] private bool canDie = true;
     #endregion
     #region Player Floats
-    private float defaultMaxSpeed = 10f, defaultMoveSpeed = 10f, defaultJumpPower = 18f, defaultDashPower = 40f, defaultTurnResponsiveness = 4f, defaultDashSpeed = 40f, defaultExtraJumps = 1f; //Permanent Upgrades Will Affect These
-    private float tempMaxSpeed = 10f, tempMoveSpeed = 10f, tempJumpPower = 18f, tempDashPower = 40f, tempTurnResponsiveness = 4f, tempExtraJumps; //Temporary Upgrades/Debuffs Will Affect These
+    private float defaultMaxSpeed = 10f, defaultMoveSpeed = 10f, defaultJumpPower = 30f, defaultDashPower = 40f, defaultTurnResponsiveness = 4f, defaultDashSpeed = 40f, defaultExtraJumps = 1f; //Permanent Upgrades Will Affect These
+    private float tempMaxSpeed = 10f, tempMoveSpeed = 10f, tempJumpPower = 30f, tempDashPower = 40f, tempTurnResponsiveness = 4f, tempExtraJumps; //Temporary Upgrades/Debuffs Will Affect These
     private float velocityDirection = 1, turnaround;
     [SerializeField] private float playerHealth;
     #endregion
@@ -127,20 +127,13 @@ public class playerController : MonoBehaviour
 
     void CheckFaceDirection()
     {
-
-        if (body.linearVelocity.x > 0 && !isFacingRight)
-        {
-            forward = right;
-            Flip();
-        }
-        if (body.linearVelocity.x < 0 && isFacingRight)
-        {
-            forward = left;
-            Flip();
-        }
-
+        if ((body.linearVelocity.x > 0 && !isFacingRight || body.linearVelocity.x < 0 && isFacingRight) && isGrounded) Flip();
+        
         void Flip()
         {
+            if (forward == left) forward = right;
+            else if (forward == right) forward = left;
+
             isFacingRight = !isFacingRight;
             velocityDirection *= -1;
 
@@ -192,10 +185,25 @@ public class playerController : MonoBehaviour
         #endregion
 
         #region Most Recent Direction Input
-        
-        
+        if (Input.GetKey(up)) currentDirection = "up";
+        else if (Input.GetKey(down)) currentDirection = "down";
 
-        
+
+        else if (Input.GetKey(left) || Input.GetKey(right))
+        {
+
+            if (Input.GetKey(left) && left != forward || Input.GetKey(right) && right != forward)
+            {
+                currentDirection = "backward";
+            }
+
+            if (Input.GetKey(left) && left == forward || Input.GetKey(right) && right == forward)
+            {
+                currentDirection = "forward";
+            }
+        }
+
+        else currentDirection = "neutral";
         #endregion
     }
 
@@ -516,7 +524,69 @@ public class playerController : MonoBehaviour
 
         if (Input.GetKeyDown(lightAttack) && reloadTimer <= 0)
         {
-            //switch (inputDirection) { }
+            switch (currentDirection) {
+
+                case ("up"): 
+
+
+
+                    break;
+
+                case ("down"):
+
+                    break;
+
+                case ("backward"):
+                   
+
+
+
+
+                    break;
+
+                case ("forward"):
+
+                    break;
+
+                case ("right"):
+
+                    break;
+
+
+
+            }
+
+
+        }
+
+
+
+
+
+        if (Input.GetKeyDown(heavyAttack) && reloadTimer <= 0)
+        {
+            switch (currentDirection)
+            {
+
+                case ("up"):
+
+
+
+                    break;
+
+                case ("down"):
+
+                    break;
+
+                case ("left"):
+
+                    break;
+
+                case ("right"):
+
+                    break;
+
+            }
 
 
         }
@@ -524,6 +594,13 @@ public class playerController : MonoBehaviour
 
 
     }
+
+
+
+
+
+
+
 
 
 }

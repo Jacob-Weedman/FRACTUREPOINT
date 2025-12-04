@@ -108,7 +108,7 @@ public class CameraMovement : MonoBehaviour
             shakeInterval = 0.01f;
 
             // Move Camera
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 300);
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, target.transform.position.y, -10), Vector2.Distance(transform.position, target.transform.position) / 100);
         }
 
         //Initial Pan

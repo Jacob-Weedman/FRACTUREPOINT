@@ -497,7 +497,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   spriteRenderer: {fileID: 1775076319}
-  targetAlpha: 0.5
+  targetAlpha: 0
+  alphaSpeed: 0.07
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -4,13 +4,18 @@ public class HealthBarManager : MonoBehaviour
 {
     // public Transform centerBarTransform;
     // public Transform rightEdgeTransform;
+    public float idk = 0.045f;
     private float playerHealth;
     public float sliderValue = 100.0f;
+    public GameObject centerBar;
+    private Transform centerBarTransform;
+    public GameObject rightBar;
+    private Transform rightBarTransform;
 
     public SpriteRenderer centerBarRenderer;
     private Vector3 centerBarMaxSize;
     // private float centerBarWidth; 
-    // private Vector3 centerBarStartPosition;
+    // public Transform centerBarPosition;
 
     // public SpriteRenderer rightEdgeRenderer;
     // private Vector3 rightEdgeStartPosition;
@@ -20,8 +25,8 @@ public class HealthBarManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        centerBarRenderer = centerBar.GetComponent<SpriteRenderer>();
         centerBarMaxSize = centerBarRenderer.size;
-        // centerBarStartPosition = centerBarTransform.position;
         // rightEdgeStartPosition = rightEdgeTransform.position;
     }
 
@@ -36,8 +41,16 @@ public class HealthBarManager : MonoBehaviour
         sliderValue += healthIncrement;
 
 
-        centerBarRenderer.size = new Vector2(centerBarMaxSize.x, sliderValue * centerBarMaxSize.y / 100.0f);
+        centerBarRenderer.size = new Vector2(centerBarMaxSize.x * sliderValue / 100.0f, centerBarMaxSize.y);
 
+
+        // centerBarPosition = centerBar.GetComponent<Transform>();
+        // centerBarPosition = new Vector3(centerBarPosition.x + 0.01, centerBarPosition.y, centerBarPosition.z);
+
+        centerBarTransform = centerBar.GetComponent<Transform>();
+        centerBarTransform.position += Vector3.right * healthIncrement * idk;
+        rightBarTransform = rightBar.GetComponent<Transform>();
+        rightBarTransform.position += Vector3.right * healthIncrement * 2 * idk;
 
 
 

@@ -1,6 +1,4 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
 public class ShootScript: MonoBehaviour
 {

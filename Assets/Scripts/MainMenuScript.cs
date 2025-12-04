@@ -9,13 +9,13 @@ public class MainMenuScript : MonoBehaviour
 
 
     public float targetAlpha = 0.0f;
-    public float alphaSpeed = 0.05f;
+    public float alphaSpeed = 0.07f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    // void Start()
-    // {
-        
-    // }
+    void Start()
+    {
+        spriteRenderer.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+    }
 
     // Update is called once per frame
     void FixedUpdate()
