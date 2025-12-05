@@ -97,10 +97,10 @@ public class MasterEnemyAI : MonoBehaviour
 
     #region WEAPON STATS (CHANGEABLE in Unity)
 
+    public GameObject EnemyProjectile;
     public string EnemyType = "GROUND"; // Options: "GROUND", "AIR"
     public bool IsDrone = false;
     public string WeaponType = "RANGED"; // Options: "RANGED", "ROCKET", "PARTICLE", "MELEE", "GRENADE", "NONE"
-    public string ParticleWeaponType = "FIRE"; // Options: "FIRE", "ELECTRICITY". NOTE: only used if public variable WeaponType = "PARTICLE" 
     public int WeaponDamage = 5; // Damage per hit
     public int WeaponFireRate = 300; // Delay in time between attacks both melee and ranged
     public float WeaponRandomSpread = 7.5f; // Random direction of lanched projectiles
@@ -121,8 +121,14 @@ public class MasterEnemyAI : MonoBehaviour
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
 
-        transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
-        transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        if (transform.Find("ReloadingIndicator")) // Ensures Reloading Indicator Exists
+        {
+            transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        }
+        if (transform.Find("PursuingIndicator")) // Ensures Pursuing Indicator Exists
+        {
+            transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
+        }
 
         StartPosition = transform.position;
         AllPositions = GameObject.FindGameObjectsWithTag("PossiblePositions").ToList();
@@ -171,11 +177,27 @@ public class MasterEnemyAI : MonoBehaviour
 
         Camera = GameObject.FindGameObjectWithTag("MainCamera");
         player = GameObject.FindGameObjectWithTag("Player");
-        barrel = transform.Find("Barrel").gameObject;
+
+        if (transform.Find("Barrel")) // Ensures barrel exists
+        {
+            barrel = transform.Find("Barrel").gameObject;
+        }
+        else
+        {
+            barrel = null;
+        }
+
         LastKnownPlayerLocation = null;
 
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         DesiredDistance = WeaponRange - 5;
+
+        // Set default EnemyProjectile if it starts as NULL (DEV forgot to change it lmao)
+        if (EnemyProjectile == null)
+        {
+            EnemyProjectile = GameObject.Find("GameObjectFolder").transform.Find("EnemyProjectile").gameObject;
+        }
+
 
         InvokeRepeating("UpdatePath", 0f, 0.1f);
         InvokeRepeating("PathfindingTimeout", 0f, 10);
@@ -285,7 +307,7 @@ public class MasterEnemyAI : MonoBehaviour
         }
         */
 
-        if (targetingPlayer && transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>())
+        if (targetingPlayer && transform.Find("PursuingIndicator"))
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = true;
             if (AbilityInvisible)
@@ -302,11 +324,11 @@ public class MasterEnemyAI : MonoBehaviour
             }
         }
 
-        if (currentlyReloading && transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>())
+        if (currentlyReloading && transform.Find("ReloadingIndicator"))
         {
             transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = true;
         }
-        else
+        else if (transform.Find("ReloadingIndicator"))
         {
             transform.Find("ReloadingIndicator").GetComponent<SpriteRenderer>().enabled = false;
         }
@@ -457,7 +479,10 @@ public class MasterEnemyAI : MonoBehaviour
             }
 
             // Angle barrel towards player
-            angle = Mathf.Atan2(player.transform.position.y - barrel.transform.position.y, player.transform.position.x - barrel.transform.position.x) * Mathf.Rad2Deg;
+            if (barrel != null) // Prevents Error
+            {
+                angle = Mathf.Atan2(player.transform.position.y - barrel.transform.position.y, player.transform.position.x - barrel.transform.position.x) * Mathf.Rad2Deg;
+            }
 
         }
         // Player has broken line of sight and the enemy will attempt to move to the last known location
@@ -506,8 +531,11 @@ public class MasterEnemyAI : MonoBehaviour
         }
 
         // Rotate barrel towards player
-        Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        barrel.transform.rotation = Quaternion.RotateTowards(barrel.transform.rotation, targetRotation, 200 * Time.deltaTime);
+        if (barrel != null) // PRevents error
+        {
+            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+            barrel.transform.rotation = Quaternion.RotateTowards(barrel.transform.rotation, targetRotation, 200 * Time.deltaTime);
+        }
 
         #endregion
 
@@ -588,7 +616,7 @@ public class MasterEnemyAI : MonoBehaviour
             case "RANGED":
                 // Create Projectile
                 GameObject BulletInstance;
-                BulletInstance = Instantiate(GameObject.Find("EnemyProjectile"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                BulletInstance = Instantiate(EnemyProjectile, barrel.transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
                 //BulletInstance.transform.parent = transform;
 
                 // Variables
@@ -604,7 +632,7 @@ public class MasterEnemyAI : MonoBehaviour
 
                 // Create Rocket
                 GameObject Rocket;
-                Rocket = Instantiate(GameObject.Find("EnemyRocket"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                Rocket = Instantiate(GameObject.Find("EnemyRocket"), barrel.transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
 
                 // Variables
                 Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;
@@ -621,29 +649,13 @@ public class MasterEnemyAI : MonoBehaviour
                 // Create particle
                 GameObject ParticleWeapon;
 
-                // Determine particle type
-                if (ParticleWeaponType == "ELECTRICITY") // Instantiate electrity object
-                {
-                    ParticleWeapon = Instantiate(GameObject.Find("EvilAura"), new Vector3(barrel.transform.position.x, barrel.transform.position.y, GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
-                    ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
+                ParticleWeapon = Instantiate(EnemyProjectile, new Vector3(barrel.transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), barrel.transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), EnemyProjectile.transform.position.z), Quaternion.identity);
+                ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
 
-                    // Set variables
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().rotate = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
-                }
-                if (ParticleWeaponType == "FIRE") // Instantiate fire object
-                {
-                    ParticleWeapon = Instantiate(GameObject.Find("Flame"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("Flame").transform.position.z), Quaternion.identity);
-                    ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
-
-                    // Set variables
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
-                }
-
+                // Set variables
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
                 break;
 
