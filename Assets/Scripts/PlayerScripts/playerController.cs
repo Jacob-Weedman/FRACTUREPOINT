@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -128,16 +127,16 @@ public class playerController : MonoBehaviour
     void CheckFaceDirection()
     {
         if ((body.linearVelocity.x > 0 && !isFacingRight || body.linearVelocity.x < 0 && isFacingRight) && isGrounded) Flip();
+    }
+    public void Flip()
+    {        
+        if (forward == left) forward = right;
+        else if (forward == right) forward = left;
         
-        void Flip()
-        {
-            if (forward == left) forward = right;
-            else if (forward == right) forward = left;
+        isFacingRight = !isFacingRight;
+        velocityDirection *= -1;
 
-            isFacingRight = !isFacingRight;
-            velocityDirection *= -1;
-
-            #region Change Player Orientation
+        #region Change Player Orientation
             Vector3 currentScale = transform.localScale;
             currentScale.x *= -1;
             transform.localScale = currentScale;
@@ -148,9 +147,9 @@ public class playerController : MonoBehaviour
             gun.transform.localScale = gunScale;
 
             #endregion
-        }
-
     }
+
+    
 
     void StateCheck()
     {
@@ -164,7 +163,7 @@ public class playerController : MonoBehaviour
 
         #region Wall Check
         wallCheck = GetComponentInChildren<WallCheck>();
-        if (wallCheck.touchingWall && !isGrounded && Input.GetKey(forward)) isWallSlide = true;
+        if ((wallCheck.touchingWall) && !isGrounded && Input.GetKey(forward)) isWallSlide = true;
         else isWallSlide = false;
         #endregion
 

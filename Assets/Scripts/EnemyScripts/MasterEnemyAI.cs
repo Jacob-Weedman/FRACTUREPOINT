@@ -432,7 +432,7 @@ public class MasterEnemyAI : MonoBehaviour
 
         #region GROUND DETECTION
         //Detecting if the enemy has reached the ground
-        if (EnemyType == "GROUND")
+        if (EnemyType == "GROUND" && AbilityJump) // Makes sure the enemy can jump before calculating
         {
             if (GetComponentInChildren<GroundCheck>().isGrounded == true && rb.linearVelocity.y == 0)
             {

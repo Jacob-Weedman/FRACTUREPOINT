@@ -265,9 +265,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5867727307968407443}
   - component: {fileID: 3647289237663868867}
-  - component: {fileID: 8040532638564924363}
+  - component: {fileID: 6239970846702573350}
   m_Layer: 7
-  m_Name: WallCheckL
+  m_Name: BackWallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -334,7 +334,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.016777782, y: 0.30944}
   m_EdgeRadius: 0
---- !u!114 &8040532638564924363
+--- !u!114 &6239970846702573350
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -343,10 +343,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 971418803419738983}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a121cc5b301b024ea2a2185f35ce482, type: 3}
+  m_Script: {fileID: 11500000, guid: 271eb2e29c34a0c4ebb249963781b3bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  touchingWall: 0
+  m_EditorClassIdentifier: Assembly-CSharp::BackWallCheck
+  backTouchingWall: 0
 --- !u!1 &2692880059177933160
 GameObject:
   m_ObjectHideFlags: 0
@@ -842,7 +842,7 @@ GameObject:
   - component: {fileID: 2256727104259274730}
   - component: {fileID: 8473197542399657592}
   m_Layer: 7
-  m_Name: WallCheckR
+  m_Name: WallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
