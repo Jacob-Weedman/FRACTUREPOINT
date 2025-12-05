@@ -101,7 +101,6 @@ public class MasterEnemyAI : MonoBehaviour
     public string EnemyType = "GROUND"; // Options: "GROUND", "AIR"
     public bool IsDrone = false;
     public string WeaponType = "RANGED"; // Options: "RANGED", "ROCKET", "PARTICLE", "MELEE", "GRENADE", "NONE"
-    public string ParticleWeaponType = "FIRE"; // Options: "FIRE", "ELECTRICITY". NOTE: only used if public variable WeaponType = "PARTICLE" 
     public int WeaponDamage = 5; // Damage per hit
     public int WeaponFireRate = 300; // Delay in time between attacks both melee and ranged
     public float WeaponRandomSpread = 7.5f; // Random direction of lanched projectiles
@@ -187,10 +186,18 @@ public class MasterEnemyAI : MonoBehaviour
         {
             barrel = null;
         }
+
         LastKnownPlayerLocation = null;
 
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         DesiredDistance = WeaponRange - 5;
+
+        // Set default EnemyProjectile if it starts as NULL (DEV forgot to change it lmao)
+        if (EnemyProjectile == null)
+        {
+            EnemyProjectile = GameObject.Find("GameObjectFolder").transform.Find("EnemyProjectile").gameObject;
+        }
+
 
         InvokeRepeating("UpdatePath", 0f, 0.1f);
         InvokeRepeating("PathfindingTimeout", 0f, 10);
@@ -625,7 +632,7 @@ public class MasterEnemyAI : MonoBehaviour
 
                 // Create Rocket
                 GameObject Rocket;
-                Rocket = Instantiate(GameObject.Find("EnemyRocket"), transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                Rocket = Instantiate(GameObject.Find("EnemyRocket"), barrel.transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
 
                 // Variables
                 Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;
@@ -642,29 +649,13 @@ public class MasterEnemyAI : MonoBehaviour
                 // Create particle
                 GameObject ParticleWeapon;
 
-                // Determine particle type
-                if (ParticleWeaponType == "ELECTRICITY") // Instantiate electrity object
-                {
-                    ParticleWeapon = Instantiate(GameObject.Find("EvilAura"), new Vector3(barrel.transform.position.x, barrel.transform.position.y, GameObject.Find("EvilAura").transform.position.z), Quaternion.identity);
-                    ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
+                ParticleWeapon = Instantiate(EnemyProjectile, new Vector3(barrel.transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), barrel.transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), EnemyProjectile.transform.position.z), Quaternion.identity);
+                ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
 
-                    // Set variables
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().rotate = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
-                }
-                if (ParticleWeaponType == "FIRE") // Instantiate fire object
-                {
-                    ParticleWeapon = Instantiate(GameObject.Find("Flame"), new Vector3(transform.position.x + UnityEngine.Random.Range(-0.5f, 0.5f), transform.position.y + UnityEngine.Random.Range(-0.5f, 0.5f), GameObject.Find("Flame").transform.position.z), Quaternion.identity);
-                    ParticleWeapon.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(transform.position.x - player.transform.position.x + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread), transform.position.y - player.transform.position.y + UnityEngine.Random.Range(-WeaponRandomSpread, WeaponRandomSpread)).normalized * 1.25f * WeaponRange * -1;
-
-                    // Set variables
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
-                    ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
-                }
-
+                // Set variables
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().destroy = true;
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().opacity = true;
+                ParticleWeapon.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
                 break;
 
