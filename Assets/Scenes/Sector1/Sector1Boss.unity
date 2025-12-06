@@ -917,7 +917,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7784537004867551782, guid: 513c1f8718125dd4dba8694f8874de26, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -9
       objectReference: {fileID: 0}
     - target: {fileID: 7784537004867551782, guid: 513c1f8718125dd4dba8694f8874de26, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2408,6 +2408,9 @@ MonoBehaviour:
   AllPositions: []
   PatrolPositions: []
   LastKnownPlayerLocation: {fileID: 0}
+  targetingPlayer: 0
+  inFiringCycle: 0
+  WeaponCurrentMagazineAmmount: 0
   NumberOfHitsPerMag: 0
   Speed: 1
   JumpHeight: 1
@@ -2433,10 +2436,10 @@ MonoBehaviour:
   AbilityExplodeOnContact: 1
   AbilityExplodeNearPlayer: 1
   AbilityExplodeOnDeath: 1
+  EnemyProjectile: {fileID: 0}
   EnemyType: AIR
   IsDrone: 0
   WeaponType: NONE
-  ParticleWeaponType: FIRE
   WeaponDamage: 30
   WeaponFireRate: 300
   WeaponRandomSpread: 7.5
@@ -2823,11 +2826,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7352642437992373993, guid: 9ad72a35618d6c84d91b6a883d5ebd1d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.5
+      value: 2.85
       objectReference: {fileID: 0}
     - target: {fileID: 7352642437992373993, guid: 9ad72a35618d6c84d91b6a883d5ebd1d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: 10.89
       objectReference: {fileID: 0}
     - target: {fileID: 7352642437992373993, guid: 9ad72a35618d6c84d91b6a883d5ebd1d, type: 3}
       propertyPath: m_LocalPosition.z

@@ -130,7 +130,6 @@ GameObject:
   - component: {fileID: 5791535}
   - component: {fileID: 5791538}
   - component: {fileID: 5791537}
-  - component: {fileID: 5791536}
   m_Layer: 0
   m_Name: Level5
   m_TagString: Untagged
@@ -153,23 +152,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1473455187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5791536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5791534}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fdeedc0122b3e4fbcee5d5078fd118, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameObjectButtonUI
-  ButtonMode: 
-  DestinationScene: 
-  MenuName: 
-  StartMenuDisabled: 0
-  MenuRefrence: {fileID: 0}
 --- !u!61 &5791537
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -529,7 +511,6 @@ GameObject:
   - component: {fileID: 379770615}
   - component: {fileID: 379770618}
   - component: {fileID: 379770617}
-  - component: {fileID: 379770616}
   m_Layer: 0
   m_Name: Level4
   m_TagString: Untagged
@@ -552,23 +533,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1473455187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &379770616
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 379770614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fdeedc0122b3e4fbcee5d5078fd118, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameObjectButtonUI
-  ButtonMode: 
-  DestinationScene: 
-  MenuName: 
-  StartMenuDisabled: 0
-  MenuRefrence: {fileID: 0}
 --- !u!61 &379770617
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -940,7 +904,6 @@ GameObject:
   - component: {fileID: 850148795}
   - component: {fileID: 850148798}
   - component: {fileID: 850148797}
-  - component: {fileID: 850148796}
   m_Layer: 0
   m_Name: Level3
   m_TagString: Untagged
@@ -963,23 +926,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1473455187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &850148796
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 850148794}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fdeedc0122b3e4fbcee5d5078fd118, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameObjectButtonUI
-  ButtonMode: 
-  DestinationScene: 
-  MenuName: 
-  StartMenuDisabled: 0
-  MenuRefrence: {fileID: 0}
 --- !u!61 &850148797
 BoxCollider2D:
   m_ObjectHideFlags: 0
