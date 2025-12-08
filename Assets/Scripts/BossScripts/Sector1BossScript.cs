@@ -285,7 +285,7 @@ public class Sector1BossScript : MonoBehaviour
                         // Shake Camera
                         Camera.GetComponent<CameraMovement>().shakeCamera(0.8f, 0.5f);
                         canJump = true;
-                        if (Player.transform.Find("GroundCheck").gameObject.GetComponent<GroundCheck>().isGrounded == true)
+                        if (Player.transform.GetComponentInChildren<GroundCheck>().isGrounded == true)
                         {
                             // Shockwave Damage
                             GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth -= ShockwaveDamage;

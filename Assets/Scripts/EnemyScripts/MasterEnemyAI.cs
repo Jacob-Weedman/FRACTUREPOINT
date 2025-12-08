@@ -150,8 +150,6 @@ public class MasterEnemyAI : MonoBehaviour
                 child.gameObject.layer = LayerMask.NameToLayer("Enemies");
             }
 
-            GetComponent<Rigidbody2D>().gravityScale = 1.5f;
-
             if (PatrolPositions.Count() > 0) // Catches error when the game object starts outside of the game area
             {
                 target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
@@ -296,7 +294,7 @@ public class MasterEnemyAI : MonoBehaviour
         #region ICONS
 
         // See where the enemy wants to go (DEBUGGING ONLY)
-        /*
+        
         if (target != null)
         {
             foreach (GameObject pos in AllPositions)
@@ -305,7 +303,7 @@ public class MasterEnemyAI : MonoBehaviour
             }
             target.GetComponent<SpriteRenderer>().enabled = true;
         }
-        */
+        
 
         if (targetingPlayer && transform.Find("PursuingIndicator"))
         {
@@ -632,7 +630,7 @@ public class MasterEnemyAI : MonoBehaviour
 
                 // Create Rocket
                 GameObject Rocket;
-                Rocket = Instantiate(GameObject.Find("EnemyRocket"), barrel.transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
+                Rocket = Instantiate(EnemyProjectile, barrel.transform.position, Quaternion.LookRotation(transform.position - GameObject.FindGameObjectWithTag("Player").transform.position + new Vector3(UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), UnityEngine.Random.Range((-1 * WeaponRandomSpread), WeaponRandomSpread), 0)));
 
                 // Variables
                 Rocket.GetComponent<EnemyRocket>().WeaponDamage = WeaponDamage;

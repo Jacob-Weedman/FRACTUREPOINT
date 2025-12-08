@@ -31,7 +31,6 @@ public class EnemyProjectileScript : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    /*
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")
@@ -56,5 +55,4 @@ public class EnemyProjectileScript : MonoBehaviour
             }
         }
     }
-    */
 }
