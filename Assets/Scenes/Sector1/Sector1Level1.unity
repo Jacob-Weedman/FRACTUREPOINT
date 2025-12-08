@@ -11523,7 +11523,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164349074722538668, guid: 37b0ca97675bb5c40ae094d0aa4e26b3, type: 3}
       propertyPath: m_Name
-      value: GameObjectFolder (1)
+      value: GameObjectFolder
       objectReference: {fileID: 0}
     - target: {fileID: 5691753744492080833, guid: 37b0ca97675bb5c40ae094d0aa4e26b3, type: 3}
       propertyPath: m_IsActive

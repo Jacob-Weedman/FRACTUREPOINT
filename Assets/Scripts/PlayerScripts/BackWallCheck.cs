@@ -10,8 +10,7 @@ public class BackWallCheck : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.layer == 6) PlayerController.Flip();
-
+        if (other.gameObject.layer == 6 && PlayerController.isGrounded == false) PlayerController.Flip();
     }
 
 }

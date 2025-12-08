@@ -26,7 +26,7 @@ public class playerController : MonoBehaviour
     #endregion
     #region Player Booleans
     private bool allowedToWalk = true, allowedToJump = true, allowedToWallSlide = true, allowedToDash = true, speedClampingActive = true, canScroll = true;
-    private bool isGrounded, isWallSlide, canJumpAgain, isFacingRight = true, canDash, dashingLeft, dashingRight, alreadyAirDashed, waveDashing = false;
+    public bool isGrounded, isWallSlide, canJumpAgain, isFacingRight = true, canDash, dashingLeft, dashingRight, alreadyAirDashed, waveDashing = false;
     [SerializeField] private bool canDie = true;
     #endregion
     #region Player Floats
@@ -81,10 +81,12 @@ public class playerController : MonoBehaviour
             case "Cade":
             case "Sloane":
             default:
-                hop = KeyCode.W; 
+                hop = KeyCode.W;
+                up = KeyCode.W;
                 down = KeyCode.S; 
                 left = KeyCode.A; 
                 right = KeyCode.D;
+                dash = KeyCode.LeftShift;
                 break;
 
             case "Leo":
@@ -94,6 +96,7 @@ public class playerController : MonoBehaviour
                 down = KeyCode.DownArrow; 
                 left = KeyCode.LeftArrow; 
                 right = KeyCode.RightArrow;
+                dash = KeyCode.LeftShift;
                 lightAttack = KeyCode.X;
                 heavyAttack = KeyCode.C;
                 break;
@@ -186,24 +189,14 @@ public class playerController : MonoBehaviour
         #region Most Recent Direction Input
         if (Input.GetKey(up)) currentDirection = "up";
         else if (Input.GetKey(down)) currentDirection = "down";
-
-
         else if (Input.GetKey(left) || Input.GetKey(right))
-        {
-
-            if (Input.GetKey(left) && left != forward || Input.GetKey(right) && right != forward)
-            {
-                currentDirection = "backward";
-            }
-
-            if (Input.GetKey(left) && left == forward || Input.GetKey(right) && right == forward)
-            {
-                currentDirection = "forward";
-            }
+        { 
+            if (Input.GetKey(left) && left != forward || Input.GetKey(right) && right != forward) currentDirection = "backward";
+            if (Input.GetKey(left) && left == forward || Input.GetKey(right) && right == forward) currentDirection = "forward";
         }
-
         else currentDirection = "neutral";
         #endregion
+
     }
 
     void TimerHandler()
@@ -256,7 +249,7 @@ public class playerController : MonoBehaviour
         else canDash = false;
         #endregion
         #region Dash Input Window
-
+        /*
         if (dashLeftTimer > 0 && Input.GetKeyDown(left) && canDash && !alreadyAirDashed) dashingLeft = true;
         if (Input.GetKeyDown(left))
         {
@@ -273,6 +266,8 @@ public class playerController : MonoBehaviour
 
         if (dashLeftTimer > 0) dashLeftTimer -= Time.deltaTime;
         if (dashRightTimer > 0) dashRightTimer -= Time.deltaTime;
+        
+        */
         #endregion
         #region Attack Window
         if (hitboxTimer >= 0) hitboxTimer -= Time.deltaTime;
@@ -388,19 +383,23 @@ public class playerController : MonoBehaviour
         }
 
         if (allowedToDash)
-        {
-            #region Left Dash
-            if (dashingLeft)
+        {            
+
+            #region Dashing
+            if (Input.GetKeyDown(dash) && canDash && !alreadyAirDashed)
             {
                 tempMaxSpeed = tempDashPower;
                 tempMaxSpeedTimer = .2f;
-                body.linearVelocity = new Vector2(-tempDashPower, body.linearVelocity.y);
 
-                dashingLeft = false;
                 dashCooldownTimer = dashCooldownAmount;
                 alreadyAirDashed = true;
 
                 waveDashTimer = waveDashWindow;
+
+                if (Input.GetKey(left) && Input.GetKey(right) == false) body.linearVelocity = new Vector2(-tempDashPower, body.linearVelocity.y);
+                if (Input.GetKey(right) && Input.GetKey(left) == false) body.linearVelocity = new Vector2(tempDashPower, body.linearVelocity.y);
+                if (Input.GetKey(up) && Input.GetKey(down) == false) body.linearVelocity = new Vector2(body.linearVelocity.x, tempDashPower);
+                if (Input.GetKey(down) && Input.GetKey(up) == false) body.linearVelocity = new Vector2(body.linearVelocity.x, -tempDashPower);
             }
             #endregion
 

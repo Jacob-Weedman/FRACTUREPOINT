@@ -4,7 +4,9 @@ public class HealthBarManager : MonoBehaviour
 {
     // public Transform centerBarTransform;
     // public Transform rightEdgeTransform;
-    public float idk = 0.045f;
+    private float idk = 0.045f;
+    private float imCrying = 1.08f;
+
     private float playerHealth;
     public float sliderValue = 100.0f;
     public GameObject centerBar;
@@ -14,6 +16,7 @@ public class HealthBarManager : MonoBehaviour
 
     public SpriteRenderer centerBarRenderer;
     private Vector3 centerBarMaxSize;
+    private float shownHealth;
     // private float centerBarWidth; 
     // public Transform centerBarPosition;
 
@@ -34,9 +37,17 @@ public class HealthBarManager : MonoBehaviour
     void FixedUpdate()
     {
         playerHealth = GameObject.Find("GameData").GetComponent<GameData>().CurrentHealth;
+        if (playerHealth > 0)
+        {
+            shownHealth = playerHealth;
+        }
+        else
+        {
+            shownHealth = 0;
+        }
 
         // add lerp function for health 
-        float healthIncrement = (playerHealth - sliderValue) * 0.1f;
+        float healthIncrement = (shownHealth - sliderValue) * 0.1f;
 
         sliderValue += healthIncrement;
 
@@ -50,7 +61,7 @@ public class HealthBarManager : MonoBehaviour
         centerBarTransform = centerBar.GetComponent<Transform>();
         centerBarTransform.position += Vector3.right * healthIncrement * idk;
         rightBarTransform = rightBar.GetComponent<Transform>();
-        rightBarTransform.position += Vector3.right * healthIncrement * 2 * idk;
+        rightBarTransform.position += Vector3.right * healthIncrement * 2 * idk * imCrying;
 
 
 

@@ -114,7 +114,6 @@ public class Sector1BossScript : MonoBehaviour
                 // Rotate spotlight towards fireing zone
                 Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
                 Spotlight.transform.rotation = Quaternion.RotateTowards(Spotlight.transform.rotation, targetRotation, 200 * Time.deltaTime);
-                        
             }
 
             // Change attack speed

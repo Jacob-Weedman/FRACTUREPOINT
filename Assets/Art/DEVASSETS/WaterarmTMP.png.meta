@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 66a16a666188c9e488c6bb8175501ef4
+guid: afa3e748ce45fc448a9ad367b488002b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7437121301744019311
-    second: HealthBarSheet_0
-  - first:
-      213: -6847712846145430236
-    second: HealthBarSheet_1
-  - first:
-      213: 7933164970945532859
-    second: HealthBarSheet_2
-  - first:
-      213: -3212343081482861951
-    second: HealthBarSheet_3
+      213: -5184527960707196070
+    second: WaterarmTMP_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: HealthBarSheet_0
+      name: WaterarmTMP_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 129
-        height: 48
+        x: 101
+        y: 132
+        width: 1570
+        height: 682
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,74 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1989e0264990ac890800000000000000
-      internalID: -7437121301744019311
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HealthBarSheet_1
-      rect:
-        serializedVersion: 2
-        x: 127
-        y: 0
-        width: 130
-        height: 48
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 42d5f99727908f0a0800000000000000
-      internalID: -6847712846145430236
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HealthBarSheet_2
-      rect:
-        serializedVersion: 2
-        x: 255
-        y: 0
-        width: 130
-        height: 48
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bb3d7c56283481e60800000000000000
-      internalID: 7933164970945532859
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HealthBarSheet_3
-      rect:
-        serializedVersion: 2
-        x: 383
-        y: 0
-        width: 129
-        height: 48
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 182c783bcf67b63d0800000000000000
-      internalID: -3212343081482861951
+      spriteID: a5b97fdd94bdc08b0800000000000000
+      internalID: -5184527960707196070
       vertices: []
       indices: 
       edges: []
@@ -210,10 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      HealthBarSheet_0: -7437121301744019311
-      HealthBarSheet_1: -6847712846145430236
-      HealthBarSheet_2: 7933164970945532859
-      HealthBarSheet_3: -3212343081482861951
+      WaterarmTMP_0: -5184527960707196070
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

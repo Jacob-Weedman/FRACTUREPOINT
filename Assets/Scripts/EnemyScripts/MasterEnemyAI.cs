@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-// Designed by Jacob Weedman
+// Designed by the goat Jacob Weedman
 // Use on any basic enemy
 //
 // Configure to your likeing 
@@ -313,7 +313,7 @@ public class MasterEnemyAI : MonoBehaviour
                 Cloak(false);
             }
         }
-        else
+        else if (transform.Find("PursuingIndicator"))
         {
             transform.Find("PursuingIndicator").GetComponent<SpriteRenderer>().enabled = false;
             if (AbilityInvisible)
@@ -430,7 +430,7 @@ public class MasterEnemyAI : MonoBehaviour
 
         #region GROUND DETECTION
         //Detecting if the enemy has reached the ground
-        if (EnemyType == "GROUND" && AbilityJump) // Makes sure the enemy can jump before calculating
+        if (EnemyType == "GROUND" && AbilityJump && GetComponentInChildren<GroundCheck>()) // Makes sure the enemy can jump before calculating
         {
             if (GetComponentInChildren<GroundCheck>().isGrounded == true && rb.linearVelocity.y == 0)
             {

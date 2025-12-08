@@ -17,26 +17,22 @@ public class Sector6BossScript : MonoBehaviour
     GameObject ChosenSpawnZone;
     GameObject Camera;
 
+    public Dictionary<string, int> EnemyDict = new Dictionary<string, int>();
     public List<string> EnemyList;
 
-    public float Phase = 0.5f;
+    public float Phase = 1f;
     public float Health = 1200;
 
     bool canSpawn = true;
     public List<GameObject> SpawnLocations;
 
-    float InitialSpawnCooldown = 5;
-    float SpawnCooldown;
+    float InitialSpawnCooldown = 10;
+    public float SpawnCooldown;
 
 
     void Awake()
     {
         SpawnLocations = GameObject.FindGameObjectsWithTag("1").ToList();
-        
-        //Add initial enemies to spawn
-        EnemyList.Add("Brute");
-        //EnemyList.Add("Grunt");
-        //EnemyList.Add("Sniper");
 
         // Setup
         SpawnCooldown = InitialSpawnCooldown;
@@ -44,18 +40,61 @@ public class Sector6BossScript : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Health
+        GameObject.Find("HealthIndicator").transform.localScale = new Vector3(Health / 1200 * 30, 1, 1);
+
+        if (Health >= 1100)
+        {
+            InitialSpawnCooldown = 9;
+            EnemyDict["Grunt"] = 1;
+        }
+        else if (Health >= 1000)
+        {
+            InitialSpawnCooldown = 8;
+            EnemyDict["Grunt"] = 2;
+            EnemyDict["Sniper"] = 1;
+        }
+        else if (Health >= 900)
+        {
+            InitialSpawnCooldown = 7;
+            EnemyDict["Grunt"] = 5;
+            EnemyDict["Sniper"] = 2;
+            EnemyDict["Brute"] = 1;
+        }
+        else if (Health >= 800)
+        {
+            InitialSpawnCooldown = 6;
+            EnemyDict["Grunt"] = 6;
+            EnemyDict["Sniper"] = 3;
+            EnemyDict["Brute"] = 2;
+            EnemyDict["Warper"] = 1;
+        }
+        else if (Health >= 700)
+        {
+            InitialSpawnCooldown = 5;
+        }
+        else if (Health >= 600)
+        {
+            InitialSpawnCooldown = 4;
+        }
+
+
         switch (Phase)
         {
 #region Phase1
 
         case 1: // Phase 1
 
+        // Decriment Health Automatically
+        Health -= Time.deltaTime * 5;
+
         SpawnCooldown -= Time.deltaTime;
 
         if (SpawnCooldown <= 0)
         {
             SpawnCooldown = InitialSpawnCooldown;
-            SpawnEnemy();            
+            SpawnEnemy();
+            Debug.Log("Spawned Enemy");
         }
 
         break; 
@@ -94,6 +133,16 @@ public class Sector6BossScript : MonoBehaviour
 
     async Task SpawnEnemy()
     {
+        // Put enemies into a list
+        EnemyList.Clear();
+        foreach (KeyValuePair<string, int> entry in EnemyDict)
+        {
+           int EndAmmount = entry.Value;
+           for (int j = 0; j < EndAmmount; j++)
+            {
+                EnemyList.Add(entry.Key);
+            }
+        }
         // Choose firing zone
         ChosenSpawnZone = SpawnLocations[UnityEngine.Random.Range(0, SpawnLocations.Count)];
 
