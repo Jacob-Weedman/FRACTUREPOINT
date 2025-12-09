@@ -92,6 +92,7 @@ public class MasterEnemyAI : MonoBehaviour
     public bool AbilityExplodeOnContact = false;
     public bool AbilityExplodeNearPlayer = false;
     public bool AbilityExplodeOnDeath = false;
+    public bool AbilityPlayerESP = false;
 
     #endregion
 
@@ -258,6 +259,12 @@ public class MasterEnemyAI : MonoBehaviour
     #region MAIN LOGIC
     void FixedUpdate()
     {
+        // Player ESP
+        if (AbilityPlayerESP)
+        {
+            LastKnownPlayerLocation = player;
+        }
+
         #region DEATH
         if (Health <= 0)
         {

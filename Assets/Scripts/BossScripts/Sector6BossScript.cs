@@ -32,6 +32,7 @@ public class Sector6BossScript : MonoBehaviour
 
     void Awake()
     {
+        // Add spawn locations to list
         SpawnLocations = GameObject.FindGameObjectsWithTag("1").ToList();
 
         // Setup
@@ -72,12 +73,19 @@ public class Sector6BossScript : MonoBehaviour
         else if (Health >= 700)
         {
             InitialSpawnCooldown = 5;
+            EnemyDict["Grunt"] = 3;
+            EnemyDict["Sniper"] = 4;
+            EnemyDict["Brute"] = 3;
+            EnemyDict["Warper"] = 3;
         }
         else if (Health >= 600)
         {
             InitialSpawnCooldown = 4;
+            EnemyDict["Sniper"] = 1;
+            EnemyDict["Warper"] = 1;
+            EnemyDict["Grunt"] = 0;
+            EnemyDict["Brute"] = 0;
         }
-
 
         switch (Phase)
         {
@@ -154,6 +162,7 @@ public class Sector6BossScript : MonoBehaviour
         await Task.Delay(1000);
         InstantiatedEnemy.GetComponent<Rigidbody2D>().gravityScale = 1.5f;
         InstantiatedEnemy.GetComponent<MasterEnemyAI>().enabled = true;
+        InstantiatedEnemy.GetComponent<MasterEnemyAI>().AbilityPlayerESP = true;
 
     }
 
