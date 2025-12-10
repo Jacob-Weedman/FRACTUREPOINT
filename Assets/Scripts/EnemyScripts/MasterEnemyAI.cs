@@ -259,12 +259,6 @@ public class MasterEnemyAI : MonoBehaviour
     #region MAIN LOGIC
     void FixedUpdate()
     {
-        // Player ESP
-        if (AbilityPlayerESP)
-        {
-            LastKnownPlayerLocation = player;
-        }
-
         #region DEATH
         if (Health <= 0)
         {
@@ -301,7 +295,7 @@ public class MasterEnemyAI : MonoBehaviour
         #region ICONS
 
         // See where the enemy wants to go (DEBUGGING ONLY)
-        
+        /*
         if (target != null)
         {
             foreach (GameObject pos in AllPositions)
@@ -310,7 +304,7 @@ public class MasterEnemyAI : MonoBehaviour
             }
             target.GetComponent<SpriteRenderer>().enabled = true;
         }
-        
+        */
 
         if (targetingPlayer && transform.Find("PursuingIndicator"))
         {
@@ -345,6 +339,12 @@ public class MasterEnemyAI : MonoBehaviour
         #endregion
 
         #region MISC PATHFINDING
+        // Player ESP
+        if (AbilityPlayerESP)
+        {
+            LastKnownPlayerLocation = player;
+        }
+
         if (path == null)
             return;
 
@@ -493,7 +493,6 @@ public class MasterEnemyAI : MonoBehaviour
         // Player has broken line of sight and the enemy will attempt to move to the last known location
         else if (LastKnownPlayerLocation != null)
         {
-            primed = false;
             if (Vector2.Distance(transform.position, LastKnownPlayerLocation.transform.position) > 0.5)
             {
                 canPursue = false;
@@ -518,6 +517,7 @@ public class MasterEnemyAI : MonoBehaviour
         // Go back to patrol move
         else
         {
+            primed = false;
             //LastKnownPlayerLocation = gameObject;
             currentlyPatrolling = true;
             targetingPlayer = false;
@@ -606,7 +606,7 @@ public class MasterEnemyAI : MonoBehaviour
 
     #region USE WEAPON METHOD
     // Use Weapon
-    async Task UseWeapon()
+    async Awaitable UseWeapon()
     {
         if (AbilityShootAndMove == false)
         {
@@ -681,7 +681,7 @@ public class MasterEnemyAI : MonoBehaviour
         }
 
         WeaponCurrentMagazineAmmount--;
-        await Task.Delay(WeaponFireRate);
+        await Awaitable.WaitForSecondsAsync(WeaponFireRate/1000);
 
         canFire = true;
         canMove = true;
@@ -691,29 +691,29 @@ public class MasterEnemyAI : MonoBehaviour
 
     #region MISC METHODS
 
-    async Task Dash()
+    async Awaitable Dash()
     {
         canDash = false;
 
 
-        await Task.Delay(dashDelay); // Dash delay ms
+        await Awaitable.WaitForSecondsAsync(dashDelay/1000); // Dash delay ms
 
         // Flash Red
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
 
-        await Task.Delay(100);
+        await Awaitable.WaitForSecondsAsync(100/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
-        await Task.Delay(100);
+        await Awaitable.WaitForSecondsAsync(100/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
 
-        await Task.Delay(100);
+        await Awaitable.WaitForSecondsAsync(100/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
-        await Task.Delay(100);
+        await Awaitable.WaitForSecondsAsync(100/1000);
 
         // Perform dash
         rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -1;
@@ -722,7 +722,7 @@ public class MasterEnemyAI : MonoBehaviour
     }
 
     // Reload Weapon
-    async Task ReloadWeapon()
+    async Awaitable ReloadWeapon()
     {
         canFire = false;
 
@@ -733,7 +733,7 @@ public class MasterEnemyAI : MonoBehaviour
 
         //play reload animation
         currentlyReloading = true;
-        await Task.Delay(WeaponReloadTime);
+        await Awaitable.WaitForSecondsAsync(WeaponReloadTime/1000);
         WeaponCurrentMagazineAmmount = WeaponMagazineSize;
         currentlyReloading = false;
 
@@ -749,7 +749,7 @@ public class MasterEnemyAI : MonoBehaviour
     }
 
     // Part of the patrol cycle
-    async Task MoveNextPatrol()
+    async Awaitable MoveNextPatrol()
     {
         LastKnownPlayerLocation = null;
         DesiredDistance = WeaponRange - 5;
@@ -763,7 +763,7 @@ public class MasterEnemyAI : MonoBehaviour
             if (Vector2.Distance(transform.position, target.transform.position) <= 0.5 || PatrolPositions.Contains(target) == false)
             {
                 target = PatrolPositions[UnityEngine.Random.Range(0, PatrolPositions.Count)];
-                await Task.Delay(PatrolStallTime);
+                await Awaitable.WaitForSecondsAsync(PatrolStallTime/1000);
             }
         }
 
@@ -777,11 +777,11 @@ public class MasterEnemyAI : MonoBehaviour
     }
 
     // Teleport
-    async Task Teleport()
+    async Awaitable Teleport()
     {
         canTeleport = false;
         transform.position = target.transform.position;
-        await Task.Delay(TeleportCooldown);
+        await Awaitable.WaitForSecondsAsync(TeleportCooldown/1000);
         canTeleport = true;
     }
 
@@ -866,18 +866,18 @@ public class MasterEnemyAI : MonoBehaviour
     }
 
     // Perform jump
-    async Task JumpMethod()
+    async Awaitable JumpMethod()
     {
         if (canJump == true && AbilityJump)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpHeight * 12);
             canJump = false;
-            await Task.Delay(500);
+            await Awaitable.WaitForSecondsAsync(500/1000);
         }
     }
 
     // Return To Drone Bay
-    async Task ReturnToDroneBay()
+    async Awaitable ReturnToDroneBay()
     {
         if (currentlyTravelingToDroneBay == false && currentlyInDroneBay == false)
         {
@@ -887,7 +887,7 @@ public class MasterEnemyAI : MonoBehaviour
     }
 
     // Recharge
-    async Task Recharge()
+    async Awaitable Recharge()
     {
         currentlyRecharging = true;
         canMove = false;
@@ -896,7 +896,7 @@ public class MasterEnemyAI : MonoBehaviour
         transform.position = DroneBayLocation.position;
         rb.linearVelocity = Vector3.zero;
         currentlyTravelingToDroneBay = false;
-        await Task.Delay(RechargeTime);
+        await Awaitable.WaitForSecondsAsync(RechargeTime/1000);
         CurrentBatteryCapacity = MaxBatteryCapacity;
         currentlyRecharging = false;
         canFire = true;
@@ -920,10 +920,12 @@ public class MasterEnemyAI : MonoBehaviour
         Explosion.GetComponent<EnemyParticleWeapon>().damageAmmount = WeaponDamage;
 
         // Destroy Flying Target
-        if (EnemyType == "AIR")
-        {
-            Destroy(target);
-        }
+        //if (EnemyType == "AIR")
+        //{
+        //    Destroy(target);
+        //}
+
+        //gameObject.GetComponent<MasterEnemyAI>().enabled = false;
 
         // Destroy GameObject
         Destroy(gameObject);

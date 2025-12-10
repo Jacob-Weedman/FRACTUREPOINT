@@ -15,8 +15,11 @@ public class HealthBarManager : MonoBehaviour
     private Transform rightBarTransform;
 
     public SpriteRenderer centerBarRenderer;
+    public SpriteRenderer rightBarRenderer;
+    public SpriteRenderer leftBarRenderer;
     private Vector3 centerBarMaxSize;
     private float shownHealth;
+    public SpriteRenderer skull;
     // private float centerBarWidth; 
     // public Transform centerBarPosition;
 
@@ -31,6 +34,7 @@ public class HealthBarManager : MonoBehaviour
         centerBarRenderer = centerBar.GetComponent<SpriteRenderer>();
         centerBarMaxSize = centerBarRenderer.size;
         // rightEdgeStartPosition = rightEdgeTransform.position;
+        skull.enabled = false;
     }
 
     // Update is called once per frame
@@ -44,6 +48,10 @@ public class HealthBarManager : MonoBehaviour
         else
         {
             shownHealth = 0;
+            centerBarRenderer.enabled = false;
+            rightBarRenderer.enabled = false;
+            leftBarRenderer.enabled = false;
+            skull.enabled = true;
         }
 
         // add lerp function for health 

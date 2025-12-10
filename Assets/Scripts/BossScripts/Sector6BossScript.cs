@@ -139,7 +139,7 @@ public class Sector6BossScript : MonoBehaviour
 
     }
 
-    async Task SpawnEnemy()
+    async Awaitable SpawnEnemy()
     {
         // Put enemies into a list
         EnemyList.Clear();
@@ -159,7 +159,7 @@ public class Sector6BossScript : MonoBehaviour
 
         // Give life
         GameObject InstantiatedEnemy = Instantiate(ChosenEnemy, ChosenSpawnZone.transform.position, Quaternion.identity);
-        await Task.Delay(1000);
+        await Awaitable.WaitForSecondsAsync(1000/1000);
         InstantiatedEnemy.GetComponent<Rigidbody2D>().gravityScale = 1.5f;
         InstantiatedEnemy.GetComponent<MasterEnemyAI>().enabled = true;
         InstantiatedEnemy.GetComponent<MasterEnemyAI>().AbilityPlayerESP = true;

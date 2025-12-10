@@ -2418,24 +2418,25 @@ MonoBehaviour:
   MinumumDistance: 10
   PatrolDistance: 15
   PatrolStallTime: 2000
-  PlayerDetectionRange: 50
+  PlayerDetectionRange: 60
   dashSpeed: 80
   dashDelay: 2000
   HiddenTransparencyAmmount: 0.05
   TeleportCooldown: 500
   MaxBatteryCapacity: 30
   RechargeTime: 6000
-  AbilityDash: 0
+  AbilityDash: 1
   AbilityInvisible: 0
   AbilityJump: 0
   AbilityTeleport: 0
-  AbilityShootAndMove: 0
-  AbilityReloadAndMove: 0
+  AbilityShootAndMove: 1
+  AbilityReloadAndMove: 1
   AbilityMove: 1
   AbilityDynamicRelocation: 0
   AbilityExplodeOnContact: 1
   AbilityExplodeNearPlayer: 1
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: AIR
   IsDrone: 0

@@ -318,7 +318,7 @@ public class Sector1BossScript : MonoBehaviour
 
     }
 
-    async Task Deploy()
+    async Awaitable Deploy()
     {
         // Find Which module to deploy from
         GameObject ChosenSpawner = DeployLocations[UnityEngine.Random.Range(0, DeployLocations.Count())];
@@ -331,7 +331,7 @@ public class Sector1BossScript : MonoBehaviour
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = false;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = false;
 
-        await Task.Delay((int)InitialChoiceCountdown * 500);
+        await Awaitable.WaitForSecondsAsync((int)InitialChoiceCountdown);
 
         Switchblade.GetComponent<Seeker>().enabled = true;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = true;
@@ -342,12 +342,12 @@ public class Sector1BossScript : MonoBehaviour
         Switchblade.transform.parent = null;
     }
 
-    async Task Jump()
+    async Awaitable Jump()
     {
         canJump = false;
         canShockwaveDamage = true;
 
-        await Task.Delay(1000);
+        await Awaitable.WaitForSecondsAsync(1);
 
         // Jump Towards Player
         if (Player.transform.position.x - transform.position.x > 0) // Jump right
