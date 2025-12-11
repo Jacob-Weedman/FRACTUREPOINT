@@ -22,7 +22,7 @@ public class Sector1BossScript : MonoBehaviour
     GameObject BossProjectile;
 
     public float Phase = 0.5f;
-    public float Health = 1000;
+    public float Health = 800;
 
     public float angle;
 
@@ -39,6 +39,8 @@ public class Sector1BossScript : MonoBehaviour
     float BulletInterval = 0.01f;
     float InitialMoveCountdown = 2; //sec
     float MoveCountdown = 6; // sec
+
+    float LaunchCooldown = 2f;
 
     bool canJump = true;
     float InitialJumpDelay = 1000;
@@ -86,7 +88,7 @@ public class Sector1BossScript : MonoBehaviour
     {
         Health = gameObject.GetComponent<GenericDestructable>().Health;
 
-        GameObject.Find("HealthIndicator").transform.localScale = new Vector3(Health / 1000 * 30, 1, 1);
+        GameObject.Find("HealthIndicator").transform.localScale = new Vector3(Health / 800 * 30, 1, 1);
 
         if (Phase == 1 && Choice > 1)
         {
@@ -99,9 +101,9 @@ public class Sector1BossScript : MonoBehaviour
 
         case 1: // Phase 1
 
-            if (Health <= 500)
+            if (Health <= 400)
             {
-                Health = 500;
+                Health = 400;
                 Phase = 1.5f;
                 gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 60;
             }
@@ -117,25 +119,29 @@ public class Sector1BossScript : MonoBehaviour
             }
 
             // Change attack speed
-            if (Health >= 900)
+            if (Health >= 750)
             {
                 DeployTimer = 4;
                 InitialChoiceCountdown = 3.5f;
-            }
-            else if (Health >= 800)
-            {
-                DeployTimer = 2;
-                InitialChoiceCountdown = 3;
+                LaunchCooldown = 1.75f;
             }
             else if (Health >= 700)
             {
+                DeployTimer = 2;
+                InitialChoiceCountdown = 3;
+                LaunchCooldown = 1.50f;
+            }
+            else if (Health >= 650)
+            {
                 DeployTimer = 1;
                 InitialChoiceCountdown = 2.5f;
+                LaunchCooldown = 1.25f;
             }
-            else if (Health >= 600)
+            else if (Health >= 500)
             {
                 DeployTimer = 0.5f;
                 InitialChoiceCountdown = 1;
+                LaunchCooldown = 0.75f;
             }
 
             
@@ -144,7 +150,7 @@ public class Sector1BossScript : MonoBehaviour
             if (ChoiceCountdown <= 0)
             {
                 ChoiceCountdown = InitialChoiceCountdown;
-                Choice = UnityEngine.Random.Range(1, 5);
+                Choice = UnityEngine.Random.Range(1, 4);
 
                 if (Choice == 1) // Find random firing zone
                 {
@@ -274,10 +280,21 @@ public class Sector1BossScript : MonoBehaviour
                     Phase = 2.5f;
                 }
 
-                if (gameObject.GetComponent<Rigidbody2D>().linearVelocity.y < 0 && transform.position.y <= 1.1)
+                if (gameObject.GetComponent<Rigidbody2D>().linearVelocity.y < 0 && transform.position.y < 1)
                 {
                     if (canShockwaveDamage)
                     {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            // Spawn Grunt
+                            GameObject GrenadeInstance = Instantiate(GameObject.Find("EnemyGrenade").gameObject, transform.position, Quaternion.identity);
+                            GrenadeInstance.GetComponent<Rigidbody2D>().gravityScale = 1.5f;
+                            GrenadeInstance.GetComponent<EnemyGrenade>().enabled = true;
+                            GrenadeInstance.GetComponent<EnemyGrenade>().ExplodeOnContact = true;
+                            GrenadeInstance.GetComponent<EnemyGrenade>().Duration = UnityEngine.Random.Range(3, 8);
+                            GrenadeInstance.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(UnityEngine.Random.Range(-25,25), UnityEngine.Random.Range(10,25));
+                        }
+
                         // Damage Boss
                         gameObject.GetComponent<GenericDestructable>().Health -= ShockwaveDamage;
 
@@ -331,13 +348,14 @@ public class Sector1BossScript : MonoBehaviour
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = false;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = false;
 
-        await Awaitable.WaitForSecondsAsync((int)InitialChoiceCountdown);
+        await Awaitable.WaitForSecondsAsync(LaunchCooldown);
 
         Switchblade.GetComponent<Seeker>().enabled = true;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityMove = true;
         Switchblade.GetComponent<MasterEnemyAI>().AbilityDash = true;
 
-        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = Vector2.up * 20;
+        // Launch
+        Switchblade.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(UnityEngine.Random.Range(-15,15), 20);
 
         Switchblade.transform.parent = null;
     }

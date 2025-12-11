@@ -12623,6 +12623,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0
@@ -12678,6 +12679,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 0
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 1653394538}
   EnemyType: GROUND
   IsDrone: 0
@@ -12978,6 +12980,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 1653394537}
   EnemyType: GROUND
   IsDrone: 0
@@ -13435,6 +13438,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0
@@ -13614,6 +13618,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 0
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 1653394537}
   EnemyType: GROUND
   IsDrone: 0
@@ -16271,6 +16276,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 0
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0
@@ -16326,6 +16332,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0

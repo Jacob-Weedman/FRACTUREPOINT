@@ -701,19 +701,19 @@ public class MasterEnemyAI : MonoBehaviour
         // Flash Red
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
 
-        await Awaitable.WaitForSecondsAsync(100/1000);
+        await Awaitable.WaitForSecondsAsync(500/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
-        await Awaitable.WaitForSecondsAsync(100/1000);
+        await Awaitable.WaitForSecondsAsync(500/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 1f);
 
-        await Awaitable.WaitForSecondsAsync(100/1000);
+        await Awaitable.WaitForSecondsAsync(500/1000);
 
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
-        await Awaitable.WaitForSecondsAsync(100/1000);
+        await Awaitable.WaitForSecondsAsync(500/1000);
 
         // Perform dash
         rb.linearVelocity = new Vector2(transform.position.x - player.transform.position.x, transform.position.y - player.transform.position.y).normalized * dashSpeed * -1;

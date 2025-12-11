@@ -5,23 +5,22 @@ using UnityEngine;
 
 public class EnemyGrenade : MonoBehaviour
 {
-    float duration;
-    public int WeaponDamage;
+    public float Duration = 3;
+    public int WeaponDamage = 20;
+    public bool ExplodeOnContact = false;
 
     void Awake()
     {
-        duration = 10;
-        WeaponDamage = 20;
         GetComponent<Rigidbody2D>().gravityScale = 2;
     }
 
     void FixedUpdate()
     {
-        if (duration <= 0)
+        if (Duration <= 0)
         {
             Explode();
         }
-        duration -= Time.deltaTime;
+        Duration -= Time.deltaTime;
     }
 
     void Explode()
@@ -39,5 +38,16 @@ public class EnemyGrenade : MonoBehaviour
 
         //Delete Grenade
         Destroy(gameObject);
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (ExplodeOnContact)
+        {
+            if (collision.gameObject.layer == LayerMask.NameToLayer("SolidGround") || collision.gameObject.layer == LayerMask.NameToLayer("Enemies") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                Explode();
+            }
+        }
     }
 }

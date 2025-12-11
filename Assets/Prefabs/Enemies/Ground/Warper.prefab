@@ -323,6 +323,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 0
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0
@@ -542,8 +543,8 @@ Transform:
   m_GameObject: {fileID: 7570818874588476333}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.033, y: 0.254, z: 0}
-  m_LocalScale: {x: 0.49999997, y: 0.49999997, z: 1}
+  m_LocalPosition: {x: -0.027, y: 0.303, z: 0}
+  m_LocalScale: {x: 0.021237578, y: 0.021237578, z: 0.0424732}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 530044078012862492}
@@ -595,7 +596,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 280265729915747859, guid: 978b9c4598a2f534ca76b2aaa74d3dee, type: 3}
+  m_Sprite: {fileID: -6567471042999423720, guid: 30223bfebe29fb64ea292a238b57a0d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

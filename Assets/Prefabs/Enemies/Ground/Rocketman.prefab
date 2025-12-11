@@ -233,6 +233,7 @@ MonoBehaviour:
   AbilityExplodeOnContact: 0
   AbilityExplodeNearPlayer: 0
   AbilityExplodeOnDeath: 1
+  AbilityPlayerESP: 0
   EnemyProjectile: {fileID: 0}
   EnemyType: GROUND
   IsDrone: 0
@@ -323,7 +324,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -5184527960707196070, guid: afa3e748ce45fc448a9ad367b488002b, type: 3}
+  m_Sprite: {fileID: 8125317153080621384, guid: d1a9b673ab9ef7243981cc45d9fc9b07, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
@@ -450,8 +451,8 @@ Transform:
   m_GameObject: {fileID: 8035308002294001137}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.0307, y: 0.2602, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: -0.017, y: 0.30305, z: 0}
+  m_LocalScale: {x: 0.015064651, y: 0.015064651, z: 0.0150825}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1683990610586511754}
@@ -503,7 +504,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 280265729915747859, guid: 978b9c4598a2f534ca76b2aaa74d3dee, type: 3}
+  m_Sprite: {fileID: -6567471042999423720, guid: 30223bfebe29fb64ea292a238b57a0d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
